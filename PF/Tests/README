@@ -1,0 +1,4 @@
+Each of the subdirectories you find here contains a single, Conductor
+based, test for use with a 3 host test rig.  One host
+is the source of traffic, another is a sync, and the third is the 
+device under test.  
