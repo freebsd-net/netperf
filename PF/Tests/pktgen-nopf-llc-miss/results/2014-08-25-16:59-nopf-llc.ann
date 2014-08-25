@@ -1,0 +1,5336 @@
+CONVERSION STATISTICS:
+ #samples/total                           712
+ #samples/unclaimed                       3
+Profile trace for function: ether_nh_input() [15.23%]
+	|  * of the detour through the netisr code in the event the result is always
+	|  * direct dispatch.
+	|  */
+	| static void
+	| ether_nh_input(struct mbuf *m)
+	| {
+	| 
+	| 	ether_input_internal(m->m_pkthdr.rcvif, m);
+	| ether_input_internal(struct ifnet *ifp, struct mbuf *m)
+	| {
+	| 	struct ether_header *eh;
+	| 	u_short etype;
+	| 
+	| 	if ((ifp->if_flags & IFF_UP) == 0) {
+	| #endif
+	| 	/*
+	| 	 * Do consistency checks to verify assumptions
+	| 	 * made by code past this point.
+	| 	 */
+	| 	if ((m->m_flags & M_PKTHDR) == 0) {
+	| 		if_printf(ifp, "discard frame w/o packet header\n");
+	| 		ifp->if_ierrors++;
+	| 		m_freem(m);
+	| 		return;
+	| 	}
+	| 	if (m->m_len < ETHER_HDR_LEN) {
+	| 		/* XXX maybe should pullup? */
+	| 		if_printf(ifp, "discard frame w/o leading ethernet "
+	| 		if (m->m_len < sizeof(*evl) &&
+	| 		    (m = m_pullup(m, sizeof(*evl))) == NULL) {
+	| #ifdef DIAGNOSTIC
+	| 			if_printf(ifp, "cannot pullup VLAN header\n");
+	| #endif
+	| 			ifp->if_ierrors++;
+	| {
+	| 	struct ether_header *eh;
+	| 	u_short etype;
+	| 
+	| 	if ((ifp->if_flags & IFF_UP) == 0) {
+	| 		m_freem(m);
+	| 	/*
+	| 	 * Do consistency checks to verify assumptions
+	| 	 * made by code past this point.
+	| 	 */
+	| 	if ((m->m_flags & M_PKTHDR) == 0) {
+	| 		if_printf(ifp, "discard frame w/o packet header\n");
+	| 		if (m->m_len < sizeof(*evl) &&
+	| 		    (m = m_pullup(m, sizeof(*evl))) == NULL) {
+	| #ifdef DIAGNOSTIC
+	| 			if_printf(ifp, "cannot pullup VLAN header\n");
+	| #endif
+	| 			ifp->if_ierrors++;
+	| 		m_freem(m);
+	| 		return;
+	| 	}
+	| 	eh = mtod(m, struct ether_header *);
+	| 	etype = ntohs(eh->ether_type);
+	| 	if (m->m_pkthdr.rcvif == NULL) {
+	| 				m->m_len, m->m_pkthdr.len);
+	| 		ifp->if_ierrors++;
+	| 		m_freem(m);
+	| 		return;
+	| 	}
+	| 	eh = mtod(m, struct ether_header *);
+	| 	etype = ntohs(eh->ether_type);
+100.00%	| 	}
+	| #endif
+	| 
+	| 	CURVNET_SET_QUIET(ifp->if_vnet);
+	| 
+	| 	if (ETHER_IS_MULTICAST(eh->ether_dhost)) {
+	| 		if (ETHER_IS_BROADCAST(eh->ether_dhost))
+	| 			m->m_flags |= M_BCAST;
+	| #endif
+	| 
+	| 	CURVNET_SET_QUIET(ifp->if_vnet);
+	| 
+	| 	if (ETHER_IS_MULTICAST(eh->ether_dhost)) {
+	| 		if (ETHER_IS_BROADCAST(eh->ether_dhost))
+	| 			m->m_flags |= M_BCAST;
+	| 		else
+	| 			m->m_flags |= M_MCAST;
+	| 		ifp->if_imcasts++;
+	| #ifdef MAC
+	| 	/*
+	| 	 * Tag the mbuf with an appropriate MAC label before any other
+	| 	 * consumers can get to it.
+	| 	 */
+	| 	mac_ifnet_create_mbuf(ifp, m);
+	| #endif
+	| 
+	| 	/*
+	| 	 * Give bpf a chance at the packet.
+	| 	 */
+	| 	ETHER_BPF_MTAP(ifp, m);
+	| 
+	| static __inline int
+	| bpf_peers_present(struct bpf_if *bpf)
+	| {
+	| 
+	| 	if (!LIST_EMPTY(&bpf->bif_dlist))
+	| 
+	| 	KASSERT((m->m_flags & M_VLANTAG) != 0,
+	| 	    ("%s: vlan information not present", __func__));
+	| 	KASSERT(m->m_len >= sizeof(struct ether_header),
+	| 	    ("%s: mbuf not large enough for header", __func__));
+	| 	bcopy(mtod(m, char *), &vlan, sizeof(struct ether_header));
+	| 	vlan.evl_proto = vlan.evl_encap_proto;
+	| 	vlan.evl_encap_proto = htons(ETHERTYPE_VLAN);
+	| 	vlan.evl_tag = htons(m->m_pkthdr.ether_vtag);
+	| 
+	| static __inline __uint16_t
+	| __bswap16_var(__uint16_t _x)
+	| {
+	| 
+	| 	return (__bswap16_gen(_x));
+	| 	m->m_len -= sizeof(struct ether_header);
+	| 	m->m_data += sizeof(struct ether_header);
+	| 		mb.m_next = &mv;
+	| 		mb.m_data = data;
+	| 		mb.m_len = dlen;
+	| 		bpf_mtap(bp, &mb);
+	| 	} else
+	| 		bpf_mtap2(bp, &vlan, sizeof(vlan), m);
+	| 	m->m_len += sizeof(struct ether_header);
+	| 	m->m_data -= sizeof(struct ether_header);
+	| 		return;
+	| 	}
+	| 	eh = mtod(m, struct ether_header *);
+	| 	etype = ntohs(eh->ether_type);
+	| 	if (m->m_pkthdr.rcvif == NULL) {
+	| 		if_printf(ifp, "discard frame w/o interface pointer\n");
+	| 		ifp->if_ierrors++;
+	| #endif
+	| 
+	| 	/*
+	| 	 * Give bpf a chance at the packet.
+	| 	 */
+	| 	ETHER_BPF_MTAP(ifp, m);
+	| 	/*
+	| 	 * If the CRC is still on the packet, trim it off. We do this once
+	| 	 * and once only in case we are re-entered. Nothing else on the
+	| 	 * Ethernet receive path expects to see the FCS.
+	| 	 */
+	| 	if (m->m_flags & M_HASFCS) {
+	| 		m_adj(m, -ETHER_CRC_LEN);
+	| 		m->m_flags &= ~M_HASFCS;
+	| 	}
+	| 
+	| 	if (!(ifp->if_capenable & IFCAP_HWSTATS))
+	| 		ifp->if_ibytes += m->m_pkthdr.len;
+	| 
+	| 	/* Allow monitor mode to claim this frame, after stats are updated. */
+	| 	if (ifp->if_flags & IFF_MONITOR) {
+	| 		CURVNET_RESTORE();
+	| 		return;
+	| 	}
+	| 
+	| 	/* Handle input from a lagg(4) port */
+	| 	if (ifp->if_type == IFT_IEEE8023ADLAG) {
+	| 		KASSERT(lagg_input_p != NULL,
+	| 		    ("%s: if_lagg not loaded!", __func__));
+	| 		m = (*lagg_input_p)(ifp, m);
+	| 		if (m != NULL)
+	| 			ifp = m->m_pkthdr.rcvif;
+	| 	 * If the hardware did not process an 802.1Q tag, do this now,
+	| 	 * to allow 802.1P priority frames to be passed to the main input
+	| 	 * path correctly.
+	| 	 * TODO: Deal with Q-in-Q frames, but not arbitrary nesting levels.
+	| 	 */
+	| 	if ((m->m_flags & M_VLANTAG) == 0 && etype == ETHERTYPE_VLAN) {
+	| 		struct ether_vlan_header *evl;
+	| 
+	| 		if (m->m_len < sizeof(*evl) &&
+	| 		    (m = m_pullup(m, sizeof(*evl))) == NULL) {
+	| 			m_freem(m);
+	| 			CURVNET_RESTORE();
+	| 			return;
+	| 		}
+	| 
+	| 		evl = mtod(m, struct ether_vlan_header *);
+	| 		m->m_pkthdr.ether_vtag = ntohs(evl->evl_tag);
+	| 		m->m_flags |= M_VLANTAG;
+	| 
+	| 		bcopy((char *)evl, (char *)evl + ETHER_VLAN_ENCAP_LEN,
+	| 		    ETHER_HDR_LEN - ETHER_TYPE_LEN);
+	| 		m_adj(m, ETHER_VLAN_ENCAP_LEN);
+	| 		eh = mtod(m, struct ether_header *);
+	| 	}
+	| 
+	| 	M_SETFIB(m, ifp->if_fib);
+	| 
+	| 	/* Allow ng_ether(4) to claim this frame. */
+	| 	if (IFP2AC(ifp)->ac_netgraph != NULL) {
+	| 		KASSERT(ng_ether_input_p != NULL,
+	| 		    ("%s: ng_ether_input_p is NULL", __func__));
+	| 		m->m_flags &= ~M_PROMISC;
+	| 		(*ng_ether_input_p)(ifp, &m);
+	| 		if (m == NULL) {
+	| 			CURVNET_RESTORE();
+	| 			return;
+	| 		}
+	| 		eh = mtod(m, struct ether_header *);
+	| 	/*
+	| 	 * Allow if_bridge(4) to claim this frame.
+	| 	 * The BRIDGE_INPUT() macro will update ifp if the bridge changed it
+	| 	 * and the frame should be delivered locally.
+	| 	 */
+	| 	if (ifp->if_bridge != NULL) {
+	| 		m->m_flags &= ~M_PROMISC;
+	| 		BRIDGE_INPUT(ifp, m);
+	| 		if (m == NULL) {
+	| 			CURVNET_RESTORE();
+	| 			return;
+	| 		}
+	| 		eh = mtod(m, struct ether_header *);
+	| 	 * The BRIDGE_INPUT() macro will update ifp if the bridge changed it
+	| 	 * and the frame should be delivered locally.
+	| 	 */
+	| 	if (ifp->if_bridge != NULL) {
+	| 		m->m_flags &= ~M_PROMISC;
+	| 		BRIDGE_INPUT(ifp, m);
+	| 	 * Ethernet addresses of the form 00:00:5e:00:01:xx, which
+	| 	 * is outside the scope of the M_PROMISC test below.
+	| 	 * TODO: Maintain a hash table of ethernet addresses other than
+	| 	 * ether_dhost which may be active on this ifp.
+	| 	 */
+	| 	if (ifp->if_carp && (*carp_forus_p)(ifp, eh->ether_dhost)) {
+	| 		m->m_flags &= ~M_PROMISC;
+	| 		 * M_PROMISC flag on the mbuf chain. The frame may need to
+	| 		 * be seen by the rest of the Ethernet input path in case of
+	| 		 * re-entry (e.g. bridge, vlan, netgraph) but should not be
+	| 		 * seen by upper protocol layers.
+	| 		 */
+	| 		if (!ETHER_IS_MULTICAST(eh->ether_dhost) &&
+	| 		    bcmp(IF_LLADDR(ifp), eh->ether_dhost, ETHER_ADDR_LEN) != 0)
+	| 			m->m_flags |= M_PROMISC;
+	| 	}
+	| 
+	| 	if (harvest.ethernet)
+	| 		random_harvest(&(m->m_data), 12, 2, RANDOM_NET_ETHER);
+	| 
+	| 	ether_demux(ifp, m);
+	| 		if (m->m_len < sizeof(*evl) &&
+	| 		    (m = m_pullup(m, sizeof(*evl))) == NULL) {
+	| #ifdef DIAGNOSTIC
+	| 			if_printf(ifp, "cannot pullup VLAN header\n");
+	| #endif
+	| 			ifp->if_ierrors++;
+	| 	if (!(ifp->if_capenable & IFCAP_HWSTATS))
+	| 		ifp->if_ibytes += m->m_pkthdr.len;
+	| 
+	| 	/* Allow monitor mode to claim this frame, after stats are updated. */
+	| 	if (ifp->if_flags & IFF_MONITOR) {
+	| 		m_freem(m);
+	| static void
+	| ether_nh_input(struct mbuf *m)
+	| {
+	| 
+	| 	ether_input_internal(m->m_pkthdr.rcvif, m);
+	| }
+
+Profile trace for function: ixgbe_txeof() [12.69%]
+	|  *  tx_buffer is put back on the free queue.
+	|  *
+	|  **********************************************************************/
+	| static void
+	| ixgbe_txeof(struct tx_ring *txr)
+	| {
+	| #ifdef DEV_NETMAP
+	| 	struct adapter		*adapter = txr->adapter;
+	| 	struct ifnet		*ifp = adapter->ifp;
+	| #endif
+	| 	u32			work, processed = 0;
+	| 	u16			limit = txr->process_limit;
+	| 		}
+	| 		return;
+	| 	}
+	| #endif /* DEV_NETMAP */
+	| 
+	| 	if (txr->tx_avail == txr->num_desc) {
+	| 		return;
+	| 	}
+	| 
+	| 	/* Get work starting point */
+	| 	work = txr->next_to_clean;
+	| 	buf = &txr->tx_buffers[work];
+1.11%	| 	txd = &txr->tx_base[work];
+	| 	work -= txr->num_desc; /* The distance to ring end */
+	|         bus_dmamap_sync(txr->txdma.dma_tag, txr->txdma.dma_map,
+	| 
+	| 	/* Get work starting point */
+	| 	work = txr->next_to_clean;
+	| 	buf = &txr->tx_buffers[work];
+	| 	txd = &txr->tx_base[work];
+	| 	work -= txr->num_desc; /* The distance to ring end */
+	| 		++txd;
+	| 		++buf;
+	| 		++work;
+	| 		/* reset with a wrap */
+	| 		if (__predict_false(!work)) {
+	| 			work -= txr->num_desc;
+	| 			buf = txr->tx_buffers;
+	| 			txd = txr->tx_base;
+	| 		++buf;
+	| 		++work;
+	| 		/* reset with a wrap */
+	| 		if (__predict_false(!work)) {
+	| 			work -= txr->num_desc;
+	| 			buf = txr->tx_buffers;
+	| 	work -= txr->num_desc; /* The distance to ring end */
+	|         bus_dmamap_sync(txr->txdma.dma_tag, txr->txdma.dma_map,
+	|             BUS_DMASYNC_POSTREAD);
+	| 
+	| 	do {
+	| 		union ixgbe_adv_tx_desc *eop= buf->eop;
+13.33%	| 		if (eop == NULL) /* No work */
+	| 			break;
+	| 
+	| 		if ((eop->wb.status & IXGBE_TXD_STAT_DD) == 0)
+	| 			break;	/* I/O not complete */
+	| 
+	| 		if (buf->m_head) {
+73.33%	| 			txr->bytes +=
+7.78%	| 			    buf->m_head->m_pkthdr.len;
+	| 			bus_dmamap_sync(txr->txtag,
+	| 			    buf->map,
+	| 			    BUS_DMASYNC_POSTWRITE);
+	| 			bus_dmamap_unload(txr->txtag,
+	| 			    buf->map);
+	| 			m_freem(buf->m_head);
+	| 			buf->m_head = NULL;
+	| 			buf->map = NULL;
+	| 		}
+	| 		buf->eop = NULL;
+	| 		++txr->tx_avail;
+	| 
+	| 		/* We clean the range if multi segment */
+	| 		while (txd != eop) {
+	| 			++txd;
+	| 			++buf;
+	| 			++work;
+	| 			/* wrap the ring? */
+	| 			if (__predict_false(!work)) {
+	| 				work -= txr->num_desc;
+	| 				buf = txr->tx_buffers;
+	| 				txd = txr->tx_base;
+	| 			++buf;
+	| 			++work;
+	| 			/* wrap the ring? */
+	| 			if (__predict_false(!work)) {
+	| 				work -= txr->num_desc;
+	| 				buf = txr->tx_buffers;
+	| 
+	| 		/* We clean the range if multi segment */
+	| 		while (txd != eop) {
+	| 			++txd;
+	| 			++buf;
+	| 			++work;
+	| 		buf->eop = NULL;
+	| 		++txr->tx_avail;
+	| 
+	| 		/* We clean the range if multi segment */
+	| 		while (txd != eop) {
+	| 			++txd;
+	| 			++buf;
+	| 			if (__predict_false(!work)) {
+	| 				work -= txr->num_desc;
+	| 				buf = txr->tx_buffers;
+	| 				txd = txr->tx_base;
+	| 			}
+	| 			if (buf->m_head) {
+	| 				txr->bytes +=
+	| 				    buf->m_head->m_pkthdr.len;
+	| 				bus_dmamap_sync(txr->txtag,
+	| 				    buf->map,
+	| 				    BUS_DMASYNC_POSTWRITE);
+	| 				bus_dmamap_unload(txr->txtag,
+	| 				    buf->map);
+	| 				m_freem(buf->m_head);
+	| 				buf->m_head = NULL;
+	| 				buf->map = NULL;
+	| 			}
+	| 			++txr->tx_avail;
+	| 			buf->eop = NULL;
+	| 		}
+	| 		buf->eop = NULL;
+	| 		++txr->tx_avail;
+	| 
+	| 		/* We clean the range if multi segment */
+	| 		while (txd != eop) {
+1.11%	| 			}
+	| 			++txr->tx_avail;
+	| 			buf->eop = NULL;
+	| 
+	| 		}
+	| 		++txr->packets;
+1.11%	| 		++processed;
+	| 		txr->watchdog_time = ticks;
+	| 
+	| 		/* Try the next packet */
+	| 		++txd;
+	| 		++buf;
+	| 		++work;
+	| 		++txr->packets;
+	| 		++processed;
+	| 		txr->watchdog_time = ticks;
+	| 
+	| 		/* Try the next packet */
+	| 		++txd;
+	| 		++buf;
+	| 
+	| #if defined(__i386__) || defined(__amd64__)
+	| static __inline
+	| void prefetch(void *x)
+	| {
+	| 	__asm volatile("prefetcht0 %0" :: "m" (*(unsigned long *)x));
+	| 			work -= txr->num_desc;
+	| 			buf = txr->tx_buffers;
+	| 			txd = txr->tx_base;
+	| 		}
+	| 		prefetch(txd);
+	| 	} while (__predict_true(--limit));
+2.22%	| 
+	| 	bus_dmamap_sync(txr->txdma.dma_tag, txr->txdma.dma_map,
+	| 	    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
+	| 
+	| 	work += txr->num_desc;
+	| 	txr->next_to_clean = work;
+	| 	** Watchdog calculation, we know there's
+	| 	** work outstanding or the first return
+	| 	** would have been taken, so none processed
+	| 	** for too long indicates a hang.
+	| 	*/
+	| 	if ((!processed) && ((ticks - txr->watchdog_time) > IXGBE_WATCHDOG))
+	| 		txr->queue_status = IXGBE_QUEUE_HUNG;
+	| 
+	| 	if (txr->tx_avail == txr->num_desc)
+	| 		txr->queue_status = IXGBE_QUEUE_IDLE;
+	| 
+	| 	return;
+	| }
+
+Profile trace for function: ixgbe_xmit() [11.99%]
+	|  *
+	|  **********************************************************************/
+	| 
+	| static int
+	| ixgbe_xmit(struct tx_ring *txr, struct mbuf **m_headp)
+	| {
+	| 	struct adapter  *adapter = txr->adapter;
+	| 	u32		olinfo_status = 0, cmd_type_len;
+	| 	int             i, j, error, nsegs;
+	| 	int		first;
+	| 	bool		remap = TRUE;
+	| 	struct mbuf	*m_head;
+	| 	bus_dma_segment_t segs[adapter->num_segs];
+	| 	bus_dmamap_t	map;
+	| 	struct ixgbe_tx_buf *txbuf;
+	| 	union ixgbe_adv_tx_desc *txd = NULL;
+	| 
+	| 	m_head = *m_headp;
+10.59%	| 
+	| 	/* Basic descriptor defines */
+	|         cmd_type_len = (IXGBE_ADVTXD_DTYP_DATA |
+	| 	    IXGBE_ADVTXD_DCMD_IFCS | IXGBE_ADVTXD_DCMD_DEXT);
+	| 
+	| 	if (m_head->m_flags & M_VLANTAG)
+	|          * Important to capture the first descriptor
+	|          * used because it will contain the index of
+	|          * the one we tell the hardware to report back
+	|          */
+	|         first = txr->next_avail_desc;
+	| 	txbuf = &txr->tx_buffers[first];
+4.71%	| 	map = txbuf->map;
+	| 					adapter->mbuf_defrag_failed++;
+	| 					m_freem(*m_headp);
+	| 					*m_headp = NULL;
+	| 					return (ENOBUFS);
+	| 				}
+	| 				*m_headp = m;
+	| 
+	| 	/*
+	| 	 * Map the packet for DMA.
+	| 	 */
+	| retry:
+	| 	error = bus_dmamap_load_mbuf_sg(txr->txtag, map,
+	| 	    *m_headp, segs, &nsegs, BUS_DMA_NOWAIT);
+	| 
+	| 	if (__predict_false(error)) {
+	| 		struct mbuf *m;
+	| 
+	| 		switch (error) {
+	| 		case EFBIG:
+	| 			/* Try it again? - one try */
+	| 			if (remap == TRUE) {
+	| 				remap = FALSE;
+	| 				m = m_defrag(*m_headp, M_NOWAIT);
+	| 				if (m == NULL) {
+	| 					adapter->mbuf_defrag_failed++;
+	| 					m_freem(*m_headp);
+	| 					*m_headp = NULL;
+	| 			return (error);
+	| 		}
+	| 	}
+	| 
+	| 	/* Make certain there are enough descriptors */
+	| 	if (nsegs > txr->tx_avail - 2) {
+	| 		txr->no_desc_avail++;
+	| 		bus_dmamap_unload(txr->txtag, map);
+	| 		return (ENOBUFS);
+	| 	}
+	| 	m_head = *m_headp;
+	| 	int	offload = TRUE;
+	| 	int	ctxd = txr->next_avail_desc;
+	| 	u16	vtag = 0;
+	| 
+	| 	/* First check if TSO is to be used */
+	| 	if (mp->m_pkthdr.csum_flags & CSUM_TSO)
+	| 
+	| 	/*
+	| 	 * Determine where frame payload starts.
+	| 	 * Jump over vlan headers if already present
+	| 	 */
+	| 	eh = mtod(mp, struct ether_vlan_header *);
+	| 	if (eh->evl_encap_proto == htons(ETHERTYPE_VLAN)) {
+	| 		ehdrlen = ETHER_HDR_LEN + ETHER_VLAN_ENCAP_LEN;
+	| 		eh_type = eh->evl_proto;
+	| 
+	| static __inline __uint16_t
+	| __bswap16_var(__uint16_t _x)
+	| {
+	| 
+	| 	return (__bswap16_gen(_x));
+	| 		break;
+	| #endif
+	| #ifdef INET
+	| 	case ETHERTYPE_IP:
+	| 		ip = (struct ip *)(mp->m_data + ehdrlen);
+	| 		if (ip->ip_p != IPPROTO_TCP)
+	| 			return (ENXIO);
+	| 		ip->ip_sum = 0;
+	| 		ip_hlen = ip->ip_hl << 2;
+	| 		th = (struct tcphdr *)((caddr_t)ip + ip_hlen);
+	| 		th->th_sum = in_pseudo(ip->ip_src.s_addr,
+	| 	u32 vlan_macip_lens = 0, type_tucmd_mlhl = 0;
+	| 	int	ehdrlen, ip_hlen = 0;
+	| 	u16	etype;
+	| 	u8	ipproto = 0;
+	| 	int	offload = TRUE;
+	| 	int	ctxd = txr->next_avail_desc;
+	| 
+	| 	/* First check if TSO is to be used */
+	| 	if (mp->m_pkthdr.csum_flags & CSUM_TSO)
+	| 		return (ixgbe_tso_setup(txr, mp, cmd_type_len, olinfo_status));
+	| 
+	| 	if ((mp->m_pkthdr.csum_flags & CSUM_OFFLOAD) == 0)
+	| 		offload = FALSE;
+	| 
+	| 	/* Indicate the whole packet as payload when not doing TSO */
+	|        	*olinfo_status |= mp->m_pkthdr.len << IXGBE_ADVTXD_PAYLEN_SHIFT;
+1.18%	| 
+	| 	/* Now ready a context descriptor */
+	| 	TXD = (struct ixgbe_adv_tx_context_desc *) &txr->tx_base[ctxd];
+	| 	/*
+	| 	** In advanced descriptors the vlan tag must 
+	| 	** be placed into the context descriptor. Hence
+	| 	** we need to make one even if not doing offloads.
+	| 	*/
+	| 	if (mp->m_flags & M_VLANTAG) {
+	| 		vtag = htole16(mp->m_pkthdr.ether_vtag);
+	| 		vlan_macip_lens |= (vtag << IXGBE_ADVTXD_VLAN_SHIFT);
+	| 	} else {
+	| 		ehdrlen = ETHER_HDR_LEN;
+	| 		eh_type = eh->evl_encap_proto;
+	| 	}
+	| 
+	| 	switch (ntohs(eh_type)) {
+	| #ifdef INET6
+	| 	case ETHERTYPE_IPV6:
+	| 		ip6 = (struct ip6_hdr *)(mp->m_data + ehdrlen);
+	| 		/* XXX-BZ For now we do not pretend to support ext. hdrs. */
+	| 		if (ip6->ip6_nxt != IPPROTO_TCP)
+	| 	}
+	| 
+	| 	switch (ntohs(eh_type)) {
+	| #ifdef INET6
+	| 	case ETHERTYPE_IPV6:
+	| 		ip6 = (struct ip6_hdr *)(mp->m_data + ehdrlen);
+	| 		if (ip6->ip6_nxt != IPPROTO_TCP)
+	| 			return (ENXIO);
+	| 		ip_hlen = sizeof(struct ip6_hdr);
+	| 		ip6 = (struct ip6_hdr *)(mp->m_data + ehdrlen);
+	| 		th = (struct tcphdr *)((caddr_t)ip6 + ip_hlen);
+	| 		th->th_sum = in6_cksum_pseudo(ip6, 0, IPPROTO_TCP, 0);
+	| 		/* XXX-BZ For now we do not pretend to support ext. hdrs. */
+	| 		if (ip6->ip6_nxt != IPPROTO_TCP)
+	| 			return (ENXIO);
+	| 		ip_hlen = sizeof(struct ip6_hdr);
+	| 		ip6 = (struct ip6_hdr *)(mp->m_data + ehdrlen);
+	| 		th = (struct tcphdr *)((caddr_t)ip6 + ip_hlen);
+	| 		    __func__, ntohs(eh_type));
+	| 		break;
+	| 	}
+	| 
+	| 	ctxd = txr->next_avail_desc;
+	| 	TXD = (struct ixgbe_adv_tx_context_desc *) &txr->tx_base[ctxd];
+	| 
+	| 	tcp_hlen = th->th_off << 2;
+	| 
+	| 	/* This is used in the transmit desc in encap */
+	| 	paylen = mp->m_pkthdr.len - ehdrlen - ip_hlen - tcp_hlen;
+	| 
+	| 	/* VLAN MACLEN IPLEN */
+	| 	if (mp->m_flags & M_VLANTAG) {
+	| 		vtag = htole16(mp->m_pkthdr.ether_vtag);
+	|                 vlan_macip_lens |= (vtag << IXGBE_ADVTXD_VLAN_SHIFT);
+	| 	}
+	| 
+	| 	vlan_macip_lens |= ehdrlen << IXGBE_ADVTXD_MACLEN_SHIFT;
+	| 	vlan_macip_lens |= ip_hlen;
+	| 	TXD->vlan_macip_lens = htole32(vlan_macip_lens);
+	| 
+	| 	/* ADV DTYPE TUCMD */
+	| 	type_tucmd_mlhl |= IXGBE_ADVTXD_DCMD_DEXT | IXGBE_ADVTXD_DTYP_CTXT;
+	| 	type_tucmd_mlhl |= IXGBE_ADVTXD_TUCMD_L4T_TCP;
+	| 	TXD->type_tucmd_mlhl = htole32(type_tucmd_mlhl);
+	| 
+	| 	/* MSS L4LEN IDX */
+	| 	mss_l4len_idx |= (mp->m_pkthdr.tso_segsz << IXGBE_ADVTXD_MSS_SHIFT);
+	| 	mss_l4len_idx |= (tcp_hlen << IXGBE_ADVTXD_L4LEN_SHIFT);
+	| 	TXD->mss_l4len_idx = htole32(mss_l4len_idx);
+	| 
+	| 	TXD->seqnum_seed = htole32(0);
+	| 
+	| 	if (++ctxd == txr->num_desc)
+	| 		ctxd = 0;
+	| 
+	| 	txr->tx_avail--;
+	| 	mss_l4len_idx |= (tcp_hlen << IXGBE_ADVTXD_L4LEN_SHIFT);
+	| 	TXD->mss_l4len_idx = htole32(mss_l4len_idx);
+	| 
+	| 	TXD->seqnum_seed = htole32(0);
+	| 
+	| 	if (++ctxd == txr->num_desc)
+	| 		ctxd = 0;
+	| 
+	| 	txr->tx_avail--;
+	| 	txr->next_avail_desc = ctxd;
+	| 	*cmd_type_len |= IXGBE_ADVTXD_DCMD_TSE;
+	| 	*olinfo_status |= IXGBE_TXD_POPTS_TXSM << 8;
+	| 	*olinfo_status |= paylen << IXGBE_ADVTXD_PAYLEN_SHIFT;
+	| 	++txr->tso_tx;
+	| 	return (0);
+	| 	/*
+	| 	 * Determine where frame payload starts.
+	| 	 * Jump over vlan headers if already present,
+	| 	 * helpful for QinQ too.
+	| 	 */
+	| 	eh = mtod(mp, struct ether_vlan_header *);
+	| 	if (eh->evl_encap_proto == htons(ETHERTYPE_VLAN)) {
+	| 		etype = ntohs(eh->evl_proto);
+	| 		etype = ntohs(eh->evl_encap_proto);
+	| 		ehdrlen = ETHER_HDR_LEN;
+	| 	}
+	| 
+	| 	/* Set the ether header length */
+	| 	vlan_macip_lens |= ehdrlen << IXGBE_ADVTXD_MACLEN_SHIFT;
+	| 			break;
+	| 		case ETHERTYPE_IPV6:
+	| 			ip6 = (struct ip6_hdr *)(mp->m_data + ehdrlen);
+	| 			ip_hlen = sizeof(struct ip6_hdr);
+	| 			/* XXX-BZ this will go badly in case of ext hdrs. */
+	| 			ipproto = ip6->ip6_nxt;
+	| 	}
+	| 
+	| 	/* Set the ether header length */
+	| 	vlan_macip_lens |= ehdrlen << IXGBE_ADVTXD_MACLEN_SHIFT;
+	| 
+	| 	switch (etype) {
+	| 		case ETHERTYPE_IP:
+	| 			ip = (struct ip *)(mp->m_data + ehdrlen);
+	| 			ip_hlen = ip->ip_hl << 2;
+	| 			ipproto = ip->ip_p;
+	| 		default:
+	| 			offload = FALSE;
+	| 			break;
+	| 	}
+	| 
+	| 	vlan_macip_lens |= ip_hlen;
+	| 	type_tucmd_mlhl |= IXGBE_ADVTXD_DCMD_DEXT | IXGBE_ADVTXD_DTYP_CTXT;
+	| 
+	| 	switch (ipproto) {
+	| 		case IPPROTO_TCP:
+	| 			if (mp->m_pkthdr.csum_flags & CSUM_TCP)
+	| 				type_tucmd_mlhl |= IXGBE_ADVTXD_TUCMD_L4T_UDP;
+	| 			break;
+	| 
+	| #if __FreeBSD_version >= 800000
+	| 		case IPPROTO_SCTP:
+	| 			if (mp->m_pkthdr.csum_flags & CSUM_SCTP)
+	| 			offload = FALSE;
+	| 			break;
+	| 	}
+	| 
+	| 	if (offload) /* For the TX descriptor setup */
+	| 		*olinfo_status |= IXGBE_TXD_POPTS_TXSM << 8;
+	| 		default:
+	| 			offload = FALSE;
+	| 			break;
+	| 	}
+	| 
+	| 	if (offload) /* For the TX descriptor setup */
+	| 		*olinfo_status |= IXGBE_TXD_POPTS_TXSM << 8;
+	| 
+	| 	/* Now copy bits into descriptor */
+	| 	TXD->vlan_macip_lens = htole32(vlan_macip_lens);
+	| 	TXD->type_tucmd_mlhl = htole32(type_tucmd_mlhl);
+	| 	TXD->seqnum_seed = htole32(0);
+	| 	TXD->mss_l4len_idx = htole32(0);
+	| 
+	| 	/* We've consumed the first desc, adjust counters */
+	| 	if (++ctxd == txr->num_desc)
+	| 		ctxd = 0;
+	| 	txr->next_avail_desc = ctxd;
+	| 	--txr->tx_avail;
+1.18%	| 		return (error);
+	| 	}
+	| 
+	| #ifdef IXGBE_FDIR
+	| 	/* Do the flow director magic */
+	| 	if ((txr->atr_sample) && (!adapter->fdir_reinit)) {
+	| 		++txr->atr_count;
+	| ** packets.
+	| */
+	| static void
+	| ixgbe_atr(struct tx_ring *txr, struct mbuf *mp)
+	| {
+	| 	struct adapter			*adapter = txr->adapter;
+	| 	union ixgbe_atr_hash_dword	input = {.dword = 0}; 
+	| 	union ixgbe_atr_hash_dword	common = {.dword = 0}; 
+	| 	int  				ehdrlen, ip_hlen;
+	| 	u16				etype;
+	| 
+	| 	eh = mtod(mp, struct ether_vlan_header *);
+	| 	if (eh->evl_encap_proto == htons(ETHERTYPE_VLAN)) {
+	| 		ehdrlen = ETHER_HDR_LEN + ETHER_VLAN_ENCAP_LEN;
+	| 		etype = eh->evl_proto;
+	| 		ehdrlen = ETHER_HDR_LEN;
+	| 		etype = eh->evl_encap_proto;
+	| 	}
+	| 
+	| 	/* Only handling IPv4 */
+	| 	if (etype != htons(ETHERTYPE_IP))
+	| 		return;
+	| 
+	| 	ip = (struct ip *)(mp->m_data + ehdrlen);
+	| 	ip_hlen = ip->ip_hl << 2;
+	| 
+	| 	/* check if we're UDP or TCP */
+	| 	switch (ip->ip_p) {
+	| 	/* Only handling IPv4 */
+	| 	if (etype != htons(ETHERTYPE_IP))
+	| 		return;
+	| 
+	| 	ip = (struct ip *)(mp->m_data + ehdrlen);
+	| 	ip_hlen = ip->ip_hl << 2;
+	| 
+	| 	/* check if we're UDP or TCP */
+	| 	switch (ip->ip_p) {
+	| 	case IPPROTO_TCP:
+	| 		th = (struct tcphdr *)((caddr_t)ip + ip_hlen);
+	| 		break;
+	| 	default:
+	| 		return;
+	| 	}
+	| 
+	| 	input.formatted.vlan_id = htobe16(mp->m_pkthdr.ether_vtag);
+	| 	if (mp->m_pkthdr.ether_vtag)
+	| 		common.flex_bytes ^= htons(ETHERTYPE_VLAN);
+	| 	else
+	| 		common.flex_bytes ^= etype;
+	| 	common.ip ^= ip->ip_src.s_addr ^ ip->ip_dst.s_addr;
+	| 
+	| 	que = &adapter->queues[txr->me];
+	| 	/*
+	| 	** This assumes the Rx queue and Tx
+	| 	** queue are bound to the same CPU
+	| 	*/
+	| 	ixgbe_fdir_add_signature_filter_82599(&adapter->hw,
+	| 	/* Do the flow director magic */
+	| 	if ((txr->atr_sample) && (!adapter->fdir_reinit)) {
+	| 		++txr->atr_count;
+	| 		if (txr->atr_count >= atr_sample_rate) {
+	| 			ixgbe_atr(txr, m_head);
+	| 			txr->atr_count = 0;
+	| 		}
+	| 	}
+	| #endif
+	| 
+	| 	i = txr->next_avail_desc;
+	| 	for (j = 0; j < nsegs; j++) {
+	| 		bus_size_t seglen;
+	| 		bus_addr_t segaddr;
+	| 
+	| 		txbuf = &txr->tx_buffers[i];
+	| 		txd = &txr->tx_base[i];
+	| 	i = txr->next_avail_desc;
+	| 	for (j = 0; j < nsegs; j++) {
+	| 		bus_size_t seglen;
+	| 		bus_addr_t segaddr;
+	| 
+	| 		txbuf = &txr->tx_buffers[i];
+	| 		txd = &txr->tx_base[i];
+	| 		seglen = segs[j].ds_len;
+	| 		segaddr = htole64(segs[j].ds_addr);
+	| 
+	| 		txd->read.buffer_addr = segaddr;
+	| 		txd->read.cmd_type_len = htole32(txr->txd_cmd |
+	| 		    cmd_type_len |seglen);
+	| 		txd->read.olinfo_status = htole32(olinfo_status);
+	| 
+	| 		if (++i == txr->num_desc)
+	| 		}
+	| 	}
+	| #endif
+	| 
+	| 	i = txr->next_avail_desc;
+	| 	for (j = 0; j < nsegs; j++) {
+	| 		bus_size_t seglen;
+	| 		bus_addr_t segaddr;
+	| 
+	| 		txbuf = &txr->tx_buffers[i];
+	| 		txd = &txr->tx_base[i];
+	| 	i = txr->next_avail_desc;
+	| 	for (j = 0; j < nsegs; j++) {
+	| 		bus_size_t seglen;
+	| 		bus_addr_t segaddr;
+	| 
+	| 		txbuf = &txr->tx_buffers[i];
+	| 
+	| 		if (++i == txr->num_desc)
+	| 			i = 0;
+	| 	}
+	| 
+	| 	txd->read.cmd_type_len |=
+76.47%	| 	    htole32(IXGBE_TXD_CMD_EOP | IXGBE_TXD_CMD_RS);
+	| 	txr->tx_avail -= nsegs;
+	| 	txr->next_avail_desc = i;
+	| 
+	| 	txbuf->m_head = m_head;
+	| 	** Here we swap the map so the last descriptor,
+	| 	** which gets the completion interrupt has the
+	| 	** real map, and the first descriptor gets the
+	| 	** unused map from this descriptor.
+	| 	*/
+	| 	txr->tx_buffers[first].map = txbuf->map;
+	| 	txbuf->map = map;
+	| 	bus_dmamap_sync(txr->txtag, map, BUS_DMASYNC_PREWRITE);
+	| 
+	|         /* Set the EOP descriptor that will be marked done */
+	|         txbuf = &txr->tx_buffers[first];
+	| 	txbuf->eop = txd;
+	| 
+	|         bus_dmamap_sync(txr->txdma.dma_tag, txr->txdma.dma_map,
+	|             BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
+	| 	/*
+	| 	 * Advance the Transmit Descriptor Tail (Tdt), this tells the
+	| 	 * hardware that this frame is available to transmit.
+	| 	 */
+	| 	++txr->total_packets;
+	| 	IXGBE_WRITE_REG(&adapter->hw, IXGBE_TDT(txr->me), i);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+5.88%	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	| }
+	| 
+	| static __inline void
+	| outl(u_int port, u_int data)
+	| {
+	| 	__asm __volatile("outl %0, %w1" : : "a" (data), "Nd" (port));
+	| 
+	| 	return (0);
+	| 
+	| }
+	| 				*m_headp = m;
+	| 				goto retry;
+	| 			} else
+	| 				return (error);
+	| 		case ENOMEM:
+	| 			txr->no_tx_dma_setup++;
+	| 			return (error);
+	| 		default:
+	| 			txr->no_tx_dma_setup++;
+	| 			m_freem(*m_headp);
+	| 			*m_headp = NULL;
+	| 		/* Tell transmit desc to also do IPv4 checksum. */
+	| 		*olinfo_status |= IXGBE_TXD_POPTS_IXSM << 8;
+	| 		break;
+	| #endif
+	| 	default:
+	| 		panic("%s: CSUM_TSO but no supported IP version (0x%04x)",
+
+Profile trace for function: mb_ctor_pack() [8.32%]
+	| /*
+	|  * The "packet" keg constructor.
+	|  */
+	| static int
+	| mb_ctor_pack(void *mem, int size, void *arg, int how)
+	| {
+	| 	int error, flags;
+	| 	short type;
+	| 
+	| 	m = (struct mbuf *)mem;
+	| 	args = (struct mb_args *)arg;
+	| 	flags = args->flags;
+	| 	m->m_next = NULL;
+	| 	m->m_nextpkt = NULL;
+	| 	m->m_data = m->m_dat;
+	| 	m->m_len = 0;
+	| 	m->m_flags = flags;
+	| 	m->m_type = type;
+	| m_init(struct mbuf *m, uma_zone_t zone, int size, int how, short type,
+	|     int flags)
+	| {
+	| 	int error;
+	| 
+	| 	m->m_next = NULL;
+	| 	m->m_nextpkt = NULL;
+	| 	m->m_data = m->m_dat;
+	| 	m->m_len = 0;
+	| 	m->m_flags = flags;
+	| 	m->m_type = type;
+30.51%	| 	if (flags & M_PKTHDR) {
+	| m_pkthdr_init(struct mbuf *m, int how)
+	| {
+	| #ifdef MAC
+	| 	int error;
+	| #endif
+	| 	m->m_data = m->m_pktdat;
+	| 	bzero(&m->m_pkthdr, sizeof(m->m_pkthdr));
+1.69%	| #ifdef MAC
+	| 	/* If the label init fails, fail the alloc */
+	| 	error = mac_mbuf_init(m, how);
+67.80%	| #endif
+	| 
+	| 	error = m_init(m, NULL, size, how, type, flags);
+	| 
+	| 	/* m_ext is already initialized. */
+	| 	m->m_data = m->m_ext.ext_buf;
+	|  	m->m_flags = (flags | M_EXT);
+	| 
+	| 	return (error);
+
+Profile trace for function: ixgbe_rxeof() [4.51%]
+	|  *
+	|  *  Return TRUE for more work, FALSE for all clean.
+	|  *********************************************************************/
+	| static bool
+	| ixgbe_rxeof(struct ix_queue *que)
+	| {
+	| 	struct adapter		*adapter = que->adapter;
+	| 	struct rx_ring		*rxr = que->rxr;
+	| 	struct ifnet		*ifp = adapter->ifp;
+	| 	struct lro_ctrl		*lro = &rxr->lro;
+	| 	struct lro_entry	*queued;
+	| 	int			i, nextp, processed = 0;
+	| 	u32			staterr = 0;
+	| 	u16			count = rxr->process_limit;
+3.12%	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	union ixgbe_adv_rx_desc	*cur;
+	| 	struct ixgbe_rx_buf	*rbuf, *nbuf;
+	| 	u16			pkt_info;
+	| 
+	| 	IXGBE_RX_LOCK(rxr);
+6.25%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 		IXGBE_RX_UNLOCK(rxr);
+	| 		return (FALSE);
+	| 	}
+	| #endif /* DEV_NETMAP */
+	| 
+	| 	for (i = rxr->next_to_check; count != 0;) {
+	| 		staterr = le32toh(cur->wb.upper.status_error);
+	| 		pkt_info = le16toh(cur->wb.lower.lo_dword.hs_rss.pkt_info);
+	| 
+	| 		if ((staterr & IXGBE_RXD_STAT_DD) == 0)
+	| 			break;
+	| 		if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
+	|  
+	| 		/* Sync the ring. */
+	| 		bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
+	| 		    BUS_DMASYNC_POSTREAD | BUS_DMASYNC_POSTWRITE);
+	| 
+	| 		cur = &rxr->rx_base[i];
+	| 		staterr = le32toh(cur->wb.upper.status_error);
+	| 		if ((staterr & IXGBE_RXD_STAT_DD) == 0)
+	| 			break;
+	| 		if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
+	| 			break;
+	| 
+	| 		count--;
+	| 		sendmp = NULL;
+	| 		nbuf = NULL;
+	| 		rsc = 0;
+	| 		cur->wb.upper.status_error = 0;
+	| 		rbuf = &rxr->rx_buffers[i];
+	| 		mp = rbuf->buf;
+	| 
+	| 		len = le16toh(cur->wb.upper.length);
+	| 		ptype = le32toh(cur->wb.lower.lo_dword.data) &
+	| 		    IXGBE_RXDADV_PKTTYPE_MASK;
+	| 		eop = ((staterr & IXGBE_RXD_STAT_EOP) != 0);
+	| 
+	| 		/* Make sure bad packets are discarded */
+	| 		if (((staterr & IXGBE_RXDADV_ERR_FRAME_ERR_MASK) != 0) ||
+	| 		sendmp = NULL;
+	| 		nbuf = NULL;
+	| 		rsc = 0;
+	| 		cur->wb.upper.status_error = 0;
+	| 		rbuf = &rxr->rx_buffers[i];
+	| 		mp = rbuf->buf;
+3.12%	| 		** Rather than using the fmp/lmp global pointers
+	| 		** we now keep the head of a packet chain in the
+	| 		** buffer struct and pass this along from one
+	| 		** descriptor to the next, until we get EOP.
+	| 		*/
+	| 		mp->m_len = len;
+	| 		** more than one packet at a time, something
+	| 		** that has never been true before, it
+	| 		** required eliminating global chain pointers
+	| 		** in favor of what we are doing here.  -jfv
+	| 		*/
+	| 		if (!eop) {
+	| 			/*
+	| 			** Figure out the next descriptor
+	| 			** of this frame.
+	| 			*/
+	| 			if (rxr->hw_rsc == TRUE) {
+	| ** been merged by Hardware RSC.
+	| */
+	| static inline u32
+	| ixgbe_rsc_count(union ixgbe_adv_rx_desc *rx)
+	| {
+	| 	return (le32toh(rx->wb.lower.lo_dword.data) &
+	| 			** Figure out the next descriptor
+	| 			** of this frame.
+	| 			*/
+	| 			if (rxr->hw_rsc == TRUE) {
+	| 				rsc = ixgbe_rsc_count(cur);
+	| 				rxr->rsc_num += (rsc - 1);
+	| ** been merged by Hardware RSC.
+	| */
+	| static inline u32
+	| ixgbe_rsc_count(union ixgbe_adv_rx_desc *rx)
+	| {
+	| 	return (le32toh(rx->wb.lower.lo_dword.data) &
+	| 			if (rsc) { /* Get hardware index */
+	| 				nextp = ((staterr &
+	| 				    IXGBE_RXDADV_NEXTP_MASK) >>
+	| 				    IXGBE_RXDADV_NEXTP_SHIFT);
+	| 			} else { /* Just sequential */
+	| 				nextp = i + 1;
+	| 		eop = ((staterr & IXGBE_RXD_STAT_EOP) != 0);
+	| 
+	| 		/* Make sure bad packets are discarded */
+	| 		if (((staterr & IXGBE_RXDADV_ERR_FRAME_ERR_MASK) != 0) ||
+	| 		    (rxr->discard)) {
+	| 			rxr->rx_discarded++;
+	| 			if (eop)
+	| 				rxr->discard = FALSE;
+	| {
+	| 	struct ixgbe_rx_buf	*rbuf;
+	| 
+	| 	rbuf = &rxr->rx_buffers[i];
+	| 
+	|         if (rbuf->fmp != NULL) {/* Partial chain ? */
+	| 		rbuf->fmp->m_flags |= M_PKTHDR;
+	|                 m_freem(rbuf->fmp);
+	|                 rbuf->fmp = NULL;
+	| 	** clobbers the buffer addrs, so its easier
+	| 	** to just free the existing mbufs and take
+	| 	** the normal refresh path to get new buffers
+	| 	** and mapping.
+	| 	*/
+	| 	if (rbuf->buf) {
+	| static __inline struct mbuf *
+	| m_free(struct mbuf *m)
+	| {
+	| 	struct mbuf *n = m->m_next;
+	| 
+	| 	if ((m->m_flags & (M_PKTHDR|M_NOFREE)) == (M_PKTHDR|M_NOFREE))
+	| 		m_tag_delete_chain(m, NULL);
+	| 	if (m->m_flags & M_EXT)
+	| 		mb_free_ext(m);
+	| 	else if ((m->m_flags & M_NOFREE) == 0)
+	| 		uma_zfree(zone_mbuf, m);
+	| static __inline void uma_zfree(uma_zone_t zone, void *item);
+	| 
+	| static __inline void
+	| uma_zfree(uma_zone_t zone, void *item)
+	| {
+	| 	uma_zfree_arg(zone, item, NULL);
+	| 	struct mbuf *n = m->m_next;
+	| 
+	| 	if ((m->m_flags & (M_PKTHDR|M_NOFREE)) == (M_PKTHDR|M_NOFREE))
+	| 		m_tag_delete_chain(m, NULL);
+	| 	if (m->m_flags & M_EXT)
+	| 		mb_free_ext(m);
+	| 		m_free(rbuf->buf);
+	| 		rbuf->buf = NULL;
+	| 	}
+	| 
+	| 	rbuf->flags = 0;
+	| 			sendmp->m_flags |= M_FLOWID;
+	| #endif /* RSS */
+	| #endif /* FreeBSD_version */
+	| 		}
+	| next_desc:
+	| 		bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
+	| 		    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
+	| 
+	| 		/* Advance our pointers to the next descriptor. */
+	| 		if (++i == rxr->num_desc)
+	| 			i = 0;
+	| 
+	| 		/* Now send to the stack or do LRO */
+	| 		if (sendmp != NULL) {
+	| 			rxr->next_to_check = i;
+	|         /*
+	|          * ATM LRO is only for IP/TCP packets and TCP checksum of the packet
+	|          * should be computed by hardware. Also it should not have VLAN tag in
+	|          * ethernet header.  In case of IPv6 we do not yet support ext. hdrs.
+	|          */
+	|         if (rxr->lro_enabled &&
+	|                  * Send to the stack if:
+	|                  **  - LRO not enabled, or
+	|                  **  - no LRO resources, or
+	|                  **  - lro enqueue fails
+	|                  */
+	|                 if (rxr->lro.lro_cnt != 0)
+	|                         if (tcp_lro_rx(&rxr->lro, m, 0) == 0)
+9.38%	|                                 return;
+	|         }
+	| 	IXGBE_RX_UNLOCK(rxr);
+	|         (*ifp->if_input)(ifp, m);
+	| 	IXGBE_RX_LOCK(rxr);
+	| 
+	| 		/* Now send to the stack or do LRO */
+	| 		if (sendmp != NULL) {
+	| 			rxr->next_to_check = i;
+	| 			ixgbe_rx_input(rxr, ifp, sendmp, ptype);
+	| 			i = rxr->next_to_check;
+	| 		}
+	| 
+	|                /* Every 8 descriptors we go to refresh mbufs */
+	| 		if (processed == 8) {
+	| 			ixgbe_refresh_mbufs(rxr, i);
+	| 		IXGBE_RX_UNLOCK(rxr);
+	| 		return (FALSE);
+	| 	}
+	| #endif /* DEV_NETMAP */
+	| 
+	| 	for (i = rxr->next_to_check; count != 0;) {
+	| 			if (rxr->hw_rsc == TRUE) {
+	| 				rsc = ixgbe_rsc_count(cur);
+	| 				rxr->rsc_num += (rsc - 1);
+	| 			}
+	| 			if (rsc) { /* Get hardware index */
+	| 				nextp = ((staterr &
+	| 			} else { /* Just sequential */
+	| 				nextp = i + 1;
+	| 				if (nextp == adapter->num_rx_desc)
+	| 					nextp = 0;
+	| 			}
+	| 			nbuf = &rxr->rx_buffers[nextp];
+	| 
+	| #if defined(__i386__) || defined(__amd64__)
+	| static __inline
+	| void prefetch(void *x)
+	| {
+	| 	__asm volatile("prefetcht0 %0" :: "m" (*(unsigned long *)x));
+	| 		** Rather than using the fmp/lmp global pointers
+	| 		** we now keep the head of a packet chain in the
+	| 		** buffer struct and pass this along from one
+	| 		** descriptor to the next, until we get EOP.
+	| 		*/
+	| 		mp->m_len = len;
+	| 		/*
+	| 		** See if there is a stored head
+	| 		** that determines what we are
+	| 		*/
+	| 		sendmp = rbuf->fmp;
+	| static __inline struct mbuf *
+	| m_gethdr(int how, short type)
+	| {
+	| 	struct mb_args args;
+	| 
+	| 	args.flags = M_PKTHDR;
+	| 	args.type = type;
+	| 	return (uma_zalloc_arg(zone_mbuf, &args, how));
+	| 					rxr->rx_copies++;
+	| 					rbuf->flags |= IXGBE_RX_COPY;
+	| 				}
+	| 			}
+	| 			if (sendmp == NULL) {
+	| 				rbuf->buf = rbuf->fmp = NULL;
+	| 				sendmp = mp;
+	| 			}
+	| 
+	| 			/* first desc of a non-ps chain */
+	| 			sendmp->m_flags |= M_PKTHDR;
+34.38%	| 			sendmp->m_pkthdr.len = mp->m_len;
+	| 		** See if there is a stored head
+	| 		** that determines what we are
+	| 		*/
+	| 		sendmp = rbuf->fmp;
+	| 		if (sendmp != NULL) {  /* secondary frag */
+	| 			rbuf->buf = rbuf->fmp = NULL;
+	| 			mp->m_flags &= ~M_PKTHDR;
+	| 			sendmp->m_pkthdr.len += mp->m_len;
+	| 
+	| 			/* first desc of a non-ps chain */
+	| 			sendmp->m_flags |= M_PKTHDR;
+	| 			sendmp->m_pkthdr.len = mp->m_len;
+	| 		}
+	| 		++processed;
+	| 
+	| 		/* Pass the head pointer on */
+	| 		if (eop == 0) {
+	| 			nbuf->fmp = sendmp;
+	| 			sendmp = NULL;
+	| 			mp->m_next = nbuf->buf;
+	| 		} else { /* Sending this frame */
+	| 			sendmp->m_pkthdr.rcvif = ifp;
+	| 			rxr->rx_packets++;
+	| 			/* capture data for AIM */
+	| 			rxr->bytes += sendmp->m_pkthdr.len;
+	| 			rxr->rx_bytes += sendmp->m_pkthdr.len;
+	| 			/* Process vlan info */
+	| 			if ((rxr->vtag_strip) &&
+	| 			    (staterr & IXGBE_RXD_STAT_VP))
+	| 				vtag = le16toh(cur->wb.upper.vlan);
+	| 			if (vtag) {
+	| 				sendmp->m_pkthdr.ether_vtag = vtag;
+	| 				sendmp->m_flags |= M_VLANTAG;
+	| 			}
+	| 			if ((ifp->if_capenable & IFCAP_RXCSUM) != 0)
+	|  *********************************************************************/
+	| static void
+	| ixgbe_rx_checksum(u32 staterr, struct mbuf * mp, u32 ptype)
+	| {
+	| 	u16	status = (u16) staterr;
+	| 	u8	errors = (u8) (staterr >> 24);
+	| 
+	| 	if ((ptype & IXGBE_RXDADV_PKTTYPE_ETQF) == 0 &&
+	| 	    (ptype & IXGBE_RXDADV_PKTTYPE_SCTP) != 0)
+	| 		sctp = TRUE;
+	| 
+	| 	if (status & IXGBE_RXD_STAT_IPCS) {
+	| 		if (!(errors & IXGBE_RXD_ERR_IPE)) {
+	| 			/* IP Checksum Good */
+	| 			mp->m_pkthdr.csum_flags = CSUM_IP_CHECKED;
+	| 			mp->m_pkthdr.csum_flags |= CSUM_IP_VALID;
+	| 
+	| 		} else
+	| 			mp->m_pkthdr.csum_flags = 0;
+	| 	}
+	| 	if (status & IXGBE_RXD_STAT_L4CS) {
+	| 		u64 type = (CSUM_DATA_VALID | CSUM_PSEUDO_HDR);
+	| #if __FreeBSD_version >= 800000
+	| 		if (sctp)
+	| 			type = CSUM_SCTP_VALID;
+	| #endif
+	| 		if (!(errors & IXGBE_RXD_ERR_TCPE)) {
+	| {
+	| 	u16	status = (u16) staterr;
+	| 	u8	errors = (u8) (staterr >> 24);
+	| 	bool	sctp = FALSE;
+	| 
+	| 	if ((ptype & IXGBE_RXDADV_PKTTYPE_ETQF) == 0 &&
+	| 			mp->m_pkthdr.csum_flags = 0;
+	| 	}
+	| 	if (status & IXGBE_RXD_STAT_L4CS) {
+	| 		u64 type = (CSUM_DATA_VALID | CSUM_PSEUDO_HDR);
+	| #if __FreeBSD_version >= 800000
+	| 		if (sctp)
+	| 			type = CSUM_SCTP_VALID;
+	| #endif
+	| 		if (!(errors & IXGBE_RXD_ERR_TCPE)) {
+	| 			mp->m_pkthdr.csum_flags |= type;
+	| 			if (!sctp)
+	| 				mp->m_pkthdr.csum_data = htons(0xffff);
+	| 			default:
+	| 				/* XXX fallthrough */
+	| 				M_HASHTYPE_SET(sendmp, M_HASHTYPE_NONE);
+	| 			}
+	| #else /* RSS */
+	| 			sendmp->m_pkthdr.flowid = que->msix;
+	| 			sendmp->m_flags |= M_FLOWID;
+	| 			 * leave the old mbuf+cluster for re-use.
+	| 			 */
+	| 			if (eop && len <= IXGBE_RX_COPY_LEN) {
+	| 				sendmp = m_gethdr(M_NOWAIT, MT_DATA);
+	| 				if (sendmp != NULL) {
+	| 					sendmp->m_data +=
+	| 					    IXGBE_RX_COPY_ALIGN;
+	| 					ixgbe_bcopy(mp->m_data,
+	| {
+	| 	uint64_t *src = _src;
+	| 	uint64_t *dst = _dst;
+	| 
+	| 	for (; l > 0; l -= 32) {
+	| 		*dst++ = *src++;
+	| 		*dst++ = *src++;
+	| 		*dst++ = *src++;
+	| 		*dst++ = *src++;
+	| ixgbe_bcopy(void *_src, void *_dst, int l)
+	| {
+	| 	uint64_t *src = _src;
+	| 	uint64_t *dst = _dst;
+	| 
+	| 	for (; l > 0; l -= 32) {
+	| 					    sendmp->m_data, len);
+	| 					sendmp->m_len = len;
+	| 					rxr->rx_copies++;
+	| 					rbuf->flags |= IXGBE_RX_COPY;
+	| 		u16		len;
+	| 		u16		vtag = 0;
+	| 		bool		eop;
+	|  
+	| 		/* Sync the ring. */
+	| 		bus_dmamap_sync(rxr->rxdma.dma_tag, rxr->rxdma.dma_map,
+	| 		    BUS_DMASYNC_POSTREAD | BUS_DMASYNC_POSTWRITE);
+	| 
+	| 		cur = &rxr->rx_base[i];
+	| 		staterr = le32toh(cur->wb.upper.status_error);
+43.75%	| 		pkt_info = le16toh(cur->wb.lower.lo_dword.hs_rss.pkt_info);
+	| 
+	| 		if ((staterr & IXGBE_RXD_STAT_DD) == 0)
+	| ** Find the number of unrefreshed RX descriptors
+	| */
+	| static inline u16
+	| ixgbe_rx_unrefreshed(struct rx_ring *rxr)
+	| {       
+	| 	if (rxr->next_to_check > rxr->next_to_refresh)
+	| 		return (rxr->next_to_check - rxr->next_to_refresh - 1);
+	| 	else
+	| 		return ((rxr->num_desc + rxr->next_to_check) -
+	| 			processed = 0;
+	| 		}
+	| 	}
+	| 
+	| 	/* Refresh any remaining buf structs */
+	| 	if (ixgbe_rx_unrefreshed(rxr))
+	| 		ixgbe_refresh_mbufs(rxr, i);
+	| 
+	| 	rxr->next_to_check = i;
+	| 
+	| 	/*
+	| 	 * Flush any outstanding LRO work
+	| 	 */
+	| 	while ((queued = SLIST_FIRST(&lro->lro_active)) != NULL) {
+	| 		SLIST_REMOVE_HEAD(&lro->lro_active, next);
+	| 		tcp_lro_flush(lro, queued);
+	| 	rxr->next_to_check = i;
+	| 
+	| 	/*
+	| 	 * Flush any outstanding LRO work
+	| 	 */
+	| 	while ((queued = SLIST_FIRST(&lro->lro_active)) != NULL) {
+	| 		SLIST_REMOVE_HEAD(&lro->lro_active, next);
+	| 		tcp_lro_flush(lro, queued);
+	| 	}
+	| 
+	| 	IXGBE_RX_UNLOCK(rxr);
+	| 	*/
+	| 	if ((staterr & IXGBE_RXD_STAT_DD) != 0)
+	| 		return (TRUE);
+	| 	else
+	| 		return (FALSE);
+	| }
+
+Profile trace for function: ixgbe_mq_start() [3.95%]
+	| ** Multiqueue Transmit driver
+	| **
+	| */
+	| static int
+	| ixgbe_mq_start(struct ifnet *ifp, struct mbuf *m)
+	| {
+	| 	struct adapter	*adapter = ifp->if_softc;
+	| 	 * as the incoming flow would be mapped to.
+	| 	 *
+	| 	 * If everything is setup correctly, it should be the
+	| 	 * same bucket that the current CPU we're on is.
+	| 	 */
+	| 	if ((m->m_flags & M_FLOWID) != 0) {
+	| 		    M_HASHTYPE_GET(m), &bucket_id) == 0) {
+	| 			/* XXX TODO: spit out something if bucket_id > num_queues? */
+	| 			i = bucket_id % adapter->num_queues;
+	| 		} else {
+	| #endif
+	| 			i = m->m_pkthdr.flowid % adapter->num_queues;
+	| #ifdef	RSS
+	| 		}
+	| #endif
+	| 	} else {
+	| 		i = curcpu % adapter->num_queues;
+	| 	}
+	| 
+	| 	txr = &adapter->tx_rings[i];
+	| 	que = &adapter->queues[i];
+	| #endif
+	| 	} else {
+	| 		i = curcpu % adapter->num_queues;
+	| 	}
+	| 
+	| 	txr = &adapter->tx_rings[i];
+	| 	que = &adapter->queues[i];
+	| 
+	| 	err = drbr_enqueue(ifp, txr->br, m);
+28.57%	| 	     i = ((i + 1) & br->br_cons_mask))
+	| 		if(br->br_ring[i] == buf)
+	| 			panic("buf=%p already enqueue at %d prod=%d cons=%d",
+	| 			    buf, i, br->br_prod_tail, br->br_cons_tail);
+	| #endif	
+	| 	critical_enter();
+	| 	} while (!atomic_cmpset_int(&br->br_prod_head, prod_head, prod_next));
+	| #ifdef DEBUG_BUFRING
+	| 	if (br->br_ring[prod_head] != NULL)
+	| 		panic("dangling value in enqueue");
+	| #endif	
+	| 	br->br_ring[prod_head] = buf;
+	| 			    buf, i, br->br_prod_tail, br->br_cons_tail);
+	| #endif	
+	| 	critical_enter();
+	| 	do {
+	| 		prod_head = br->br_prod_head;
+	| 		cons_tail = br->br_cons_tail;
+7.14%	| 
+	| 		prod_next = (prod_head + 1) & br->br_prod_mask;
+	| 		
+	| 		if (prod_next == cons_tail) {
+21.43%	| static __inline int
+	| atomic_cmpset_int(volatile u_int *dst, u_int expect, u_int src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	} while (!atomic_cmpset_int(&br->br_prod_head, prod_head, prod_next));
+	| #ifdef DEBUG_BUFRING
+	| 	if (br->br_ring[prod_head] != NULL)
+	| 		panic("dangling value in enqueue");
+	| #endif	
+	| 	br->br_ring[prod_head] = buf;
+14.29%	| 
+	| 	/*
+	| 	 * The full memory barrier also avoids that br_prod_tail store
+	| 	 * is reordered before the br_ring[prod_head] is full setup.
+	| 	 */
+	| 	mb();
+	| }
+	| 
+	| static __inline void
+	| ia32_pause(void)
+	| {
+	| 	__asm __volatile("pause");
+	| 	/*
+	| 	 * If there are other enqueues in progress
+	| 	 * that preceeded us, we need to wait for them
+	| 	 * to complete 
+	| 	 */   
+	| 	while (br->br_prod_tail != prod_head)
+3.57%	| 		cpu_spinwait();
+	| 	br->br_prod_tail = prod_next;
+	| 	critical_exit();
+	| 	if (err)
+	| 		return (err);
+	| 	if (IXGBE_TX_TRYLOCK(txr)) {
+	| 		ixgbe_mq_start_locked(ifp, txr);
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 		IXGBE_TX_UNLOCK(txr);
+	| 	que = &adapter->queues[i];
+	| 
+	| 	err = drbr_enqueue(ifp, txr->br, m);
+	| 	if (err)
+	| 		return (err);
+	| 	if (IXGBE_TX_TRYLOCK(txr)) {
+	| 		ixgbe_mq_start_locked(ifp, txr);
+	| 		IXGBE_TX_UNLOCK(txr);
+7.14%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 		cons_tail = br->br_cons_tail;
+	| 
+	| 		prod_next = (prod_head + 1) & br->br_prod_mask;
+	| 		
+	| 		if (prod_next == cons_tail) {
+	| 			br->br_drops++;
+	| 			critical_exit();
+	| 		return (error);
+	| 	}
+	| #endif
+	| 	error = buf_ring_enqueue(br, m);
+	| 	if (error)
+	| 		m_freem(m);
+17.86%	| 	} else
+	| 		taskqueue_enqueue(que->tq, &txr->txq_task);
+	| 
+	| 	return (0);
+	| }
+
+Profile trace for function: bzero() [3.67%]
+	|  * void bzero(void *buf, u_int len)
+	|  */
+	| 
+	| /* done */
+	| ENTRY(bzero)
+	| 	movq	%rsi,%rcx
+	| 	xorl	%eax,%eax
+	| 	shrq	$3,%rcx
+	| 	cld
+65.38%	| 	rep
+34.62%	| 	stosq
+	| 	movq	%rsi,%rcx
+	| 	andq	$7,%rcx
+	| 	rep
+	| 	stosb
+	| 	ret
+
+Profile trace for function: mb_free_ext() [3.39%]
+33.33%	|  * Non-directly-exported function to clean up after mbufs with M_EXT
+	|  * storage attached to them if the reference count hits 1.
+	|  */
+	| void
+	| mb_free_ext(struct mbuf *m)
+	| {
+	| 	KASSERT(m->m_flags & M_EXT, ("%s: M_EXT not set on %p", __func__, m));
+	| 
+	| 	/*
+	| 	 * Check if the header is embedded in the cluster.
+	| 	 */
+	| 	freembuf = (m->m_flags & M_NOFREE) ? 0 : 1;
+25.00%	| 
+	| 	switch (m->m_ext.ext_type) {
+	| 	case EXT_SFBUF:
+	| 		sf_ext_free(m->m_ext.ext_arg1, m->m_ext.ext_arg2);
+41.67%	| 		    ("%s: no refcounting pointer on %p", __func__, m));
+	| 		/* 
+	| 		 * Free attached storage if this mbuf is the only
+	| 		 * reference to it.
+	| 		 */
+	| 		if (*(m->m_ext.ext_cnt) != 1) {
+	|  */
+	| static __inline u_int
+	| atomic_fetchadd_int(volatile u_int *p, u_int v)
+	| {
+	| 
+	| 	__asm __volatile(
+	| 			if (atomic_fetchadd_int(m->m_ext.ext_cnt, -1) != 1)
+	| 				break;
+	| 		}
+	| 
+	| 		switch (m->m_ext.ext_type) {
+	| 			if (*(m->m_ext.ext_cnt) == 0)
+	| 				*(m->m_ext.ext_cnt) = 1;
+	| 			uma_zfree(zone_pack, m);
+	| 			return;		/* Job done. */
+	| 		case EXT_CLUSTER:
+	| 			uma_zfree(zone_clust, m->m_ext.ext_buf);
+	| 			uma_zfree(zone_jumbo16, m->m_ext.ext_buf);
+	| 			break;
+	| 		case EXT_NET_DRV:
+	| 		case EXT_MOD_TYPE:
+	| 		case EXT_DISPOSABLE:
+	| 			*(m->m_ext.ext_cnt) = 0;
+	| 			uma_zfree(zone_ext_refcnt, __DEVOLATILE(u_int *,
+	| static __inline void uma_zfree(uma_zone_t zone, void *item);
+	| 
+	| static __inline void
+	| uma_zfree(uma_zone_t zone, void *item)
+	| {
+	| 	uma_zfree_arg(zone, item, NULL);
+	| 				m->m_ext.ext_cnt));
+	| 			/* FALLTHROUGH */
+	| 		case EXT_EXTREF:
+	| 			KASSERT(m->m_ext.ext_free != NULL,
+	| 				("%s: ext_free not set", __func__));
+	| 			(*(m->m_ext.ext_free))(m, m->m_ext.ext_arg1,
+	| 			return;		/* Job done. */
+	| 		case EXT_CLUSTER:
+	| 			uma_zfree(zone_clust, m->m_ext.ext_buf);
+	| 			break;
+	| 		case EXT_JUMBOP:
+	| 			uma_zfree(zone_jumbop, m->m_ext.ext_buf);
+	| 			break;
+	| 		case EXT_JUMBO9:
+	| 			uma_zfree(zone_jumbo9, m->m_ext.ext_buf);
+	| 			break;
+	| 		case EXT_JUMBO16:
+	| 			uma_zfree(zone_jumbo16, m->m_ext.ext_buf);
+	| 			if (*(m->m_ext.ext_cnt) == 0)
+	| 				*(m->m_ext.ext_cnt) = 1;
+	| 			uma_zfree(zone_pack, m);
+	| 			return;		/* Job done. */
+	| 		case EXT_CLUSTER:
+	| 			uma_zfree(zone_clust, m->m_ext.ext_buf);
+	| 			KASSERT(m->m_ext.ext_type == 0,
+	| 				("%s: unknown ext_type", __func__));
+	| 		}
+	| 	}
+	| 
+	| 	if (freembuf)
+	| 		uma_zfree(zone_mbuf, m);
+	| }
+	| 				("%s: unknown ext_type", __func__));
+	| 		}
+	| 	}
+	| 
+	| 	if (freembuf)
+	| 		uma_zfree(zone_mbuf, m);
+	| 				break;
+	| 		}
+	| 
+	| 		switch (m->m_ext.ext_type) {
+	| 		case EXT_PACKET:	/* The packet zone is special. */
+	| 			if (*(m->m_ext.ext_cnt) == 0)
+	| 				*(m->m_ext.ext_cnt) = 1;
+	| 			uma_zfree(zone_pack, m);
+
+Profile trace for function: __mtx_lock_sleep() [2.82%]
+	|  * sleep waiting for it), or if we need to recurse on it.
+	|  */
+	| void
+	| __mtx_lock_sleep(volatile uintptr_t *c, uintptr_t tid, int opts,
+	|     const char *file, int line)
+	| {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	uint64_t spin_cnt = 0;
+	| 	uint64_t sleep_cnt = 0;
+	| 	int64_t sleep_time = 0;
+	| #endif
+	| 
+	| 	if (SCHEDULER_STOPPED())
+	| 		return;
+	| 
+	| 	m = mtxlock2mtx(c);
+	| 
+	| 	if (mtx_owned(m)) {
+	| 		KASSERT((m->lock_object.lo_flags & LO_RECURSABLE) != 0 ||
+	| 		    (opts & MTX_RECURSE) != 0,
+	| 	    ("_mtx_lock_sleep: recursed on non-recursive mutex %s @ %s:%d\n",
+	| 		    m->lock_object.lo_name, file, line));
+	| 		opts &= ~MTX_RECURSE;
+	| 		m->mtx_recurse++;
+	| ATOMIC_ASM(set,	     int,   "orl %1,%0",   "ir",  v);
+	| ATOMIC_ASM(clear,    int,   "andl %1,%0",  "ir", ~v);
+	| ATOMIC_ASM(add,	     int,   "addl %1,%0",  "ir",  v);
+	| ATOMIC_ASM(subtract, int,   "subl %1,%0",  "ir",  v);
+	| 
+	| ATOMIC_ASM(set,	     long,  "orq %1,%0",   "ir",  v);
+	| 		return;
+	| 	}
+	| 	opts &= ~MTX_RECURSE;
+	| 
+	| #ifdef HWPMC_HOOKS
+	| 	PMC_SOFT_CALL( , , lock, failed);
+	| #endif
+	| 
+	| 	if (SCHEDULER_STOPPED())
+	| 		return;
+	| 
+	| 	m = mtxlock2mtx(c);
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 		    "_mtx_lock_sleep: %s contested (lock=%p) at %s:%d",
+	| 		    m->lock_object.lo_name, (void *)m->mtx_lock, file, line);
+	| 
+	| 	while (!_mtx_obtain_lock(m, tid)) {
+	| #ifdef KDTRACE_HOOKS
+	| 		spin_cnt++;
+	| #ifdef ADAPTIVE_MUTEXES
+	| 		/*
+	| 		 * If the owner is running on another CPU, spin until the
+	| 		 * owner stops running or the state of the lock changes.
+	| 		 */
+	| 		v = m->mtx_lock;
+	| 		if (v != MTX_UNOWNED) {
+	| 			owner = (struct thread *)(v & ~MTX_FLAGMASK);
+	| 			if (TD_IS_RUNNING(owner)) {
+	| 				continue;
+	| 			}
+	| 		}
+	| #endif
+	| 
+	| 		ts = turnstile_trywait(&m->lock_object);
+	| 		v = m->mtx_lock;
+	| 		 * on another CPU (or the lock could have changed
+	| 		 * owners) while we were waiting on the turnstile
+	| 		 * chain lock.  If so, drop the turnstile lock and try
+	| 		 * again.
+	| 		 */
+	| 		owner = (struct thread *)(v & ~MTX_FLAGMASK);
+	| 		if (TD_IS_RUNNING(owner)) {
+	| 		/*
+	| 		 * If the mutex isn't already contested and a failure occurs
+	| 		 * setting the contested bit, the mutex was either released
+	| 		 * or the state of the MTX_RECURSED bit changed.
+	| 		 */
+	| 		if ((v & MTX_CONTESTED) == 0 &&
+	| 		    !atomic_cmpset_ptr(&m->mtx_lock, v, v | MTX_CONTESTED)) {
+	| 		/*
+	| 		 * Check if the lock has been released while spinning for
+	| 		 * the turnstile chain lock.
+	| 		 */
+	| 		if (v == MTX_UNOWNED) {
+	| 			turnstile_cancel(ts);
+	| }
+	| 
+	| static __inline void
+	| ia32_pause(void)
+	| {
+	| 	__asm __volatile("pause");
+	| 					    __func__, m, owner);
+	| 				while (mtx_owner(m) == owner &&
+	| 				    TD_IS_RUNNING(owner)) {
+	| 					cpu_spinwait();
+	| #ifdef KDTRACE_HOOKS
+	| 					spin_cnt++;
+100.00%	| 			if (TD_IS_RUNNING(owner)) {
+	| 				if (LOCK_LOG_TEST(&m->lock_object, 0))
+	| 					CTR3(KTR_LOCK,
+	| 					    "%s: spinning on %p held by %p",
+	| 					    __func__, m, owner);
+	| 				while (mtx_owner(m) == owner &&
+	| 
+	| 		/*
+	| 		 * Block on the turnstile.
+	| 		 */
+	| #ifdef KDTRACE_HOOKS
+	| 		sleep_time -= lockstat_nsecs();
+	| #endif
+	| 		turnstile_wait(ts, mtx_owner(m), TS_EXCLUSIVE_QUEUE);
+	| #ifdef KDTRACE_HOOKS
+	| 		sleep_time += lockstat_nsecs();
+	| 		sleep_cnt++;
+	| 		CTR4(KTR_CONTENTION,
+	| 		    "contention end: %s acquired by %p at %s:%d",
+	| 		    m->lock_object.lo_name, (void *)tid, file, line);
+	| 	}
+	| #endif
+	| 	LOCKSTAT_PROFILE_OBTAIN_LOCK_SUCCESS(LS_MTX_LOCK_ACQUIRE, m, contested,
+	| 	    waittime, file, line);
+	| #ifdef KDTRACE_HOOKS
+	| 	if (sleep_time)
+	| 		LOCKSTAT_RECORD1(LS_MTX_LOCK_BLOCK, m, sleep_time);
+	| 
+	| 	/*
+	| 	 * Only record the loops spinning and not sleeping. 
+	| 	 */
+	| 	if (spin_cnt > sleep_cnt)
+	| 		LOCKSTAT_RECORD1(LS_MTX_LOCK_SPIN, m, (spin_cnt - sleep_cnt));
+	| #endif
+	| }
+	| static __inline u_long
+	| read_rflags(void)
+	| {
+	| 	u_long	rf;
+	| 
+	| 	__asm __volatile("pushfq; popq %0" : "=r" (rf));
+	| }
+	| 
+	| static __inline void
+	| disable_intr(void)
+	| {
+	| 	__asm __volatile("cli" : : : "memory");
+	| 		return;
+	| 	}
+	| 	opts &= ~MTX_RECURSE;
+	| 
+	| #ifdef HWPMC_HOOKS
+	| 	PMC_SOFT_CALL( , , lock, failed);
+	| }
+	| 
+	| static __inline void
+	| write_rflags(u_long rf)
+	| {
+	| 	__asm __volatile("pushq %0;  popfq" : : "r" (rf));
+
+Profile trace for function: uma_zalloc_arg() [1.97%]
+71.43%	| }
+	| 
+	| /* See uma.h */
+	| void *
+	| uma_zalloc_arg(uma_zone_t zone, void *udata, int flags)
+	| {
+	| 	 * preemption and migration.  We release the critical section in
+	| 	 * order to acquire the zone mutex if we are unable to allocate from
+	| 	 * the current cache; when we re-acquire the critical section, we
+	| 	 * must detect and handle migration if it has occurred.
+	| 	 */
+	| 	critical_enter();
+	| 	cpu = curcpu;
+	| 	cache = &zone->uz_cpu[cpu];
+	| 	}
+	| 
+	| 	/*
+	| 	 * Check the zone's cache of buckets.
+	| 	 */
+	| 	if ((bucket = LIST_FIRST(&zone->uz_buckets)) != NULL) {
+	| {
+	| 	uma_bucket_t bucket;
+	| 	int max;
+	| 
+	| 	/* Don't wait for buckets, preserve caller's NOVM setting. */
+	| 	bucket = bucket_alloc(zone, udata, M_NOWAIT | (flags & M_NOVM));
+	| 	 * free path.
+	| 	 */
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| 	else {
+	| 		if ((uintptr_t)udata & UMA_ZFLAG_BUCKET)
+	| 			return (NULL);
+	| 		udata = (void *)((uintptr_t)udata | UMA_ZFLAG_BUCKET);
+	| 	cache->uc_allocs = 0;
+	| 	cache->uc_frees = 0;
+	| 
+	| 	/* See if we lost the race to fill the cache. */
+	| 	if (cache->uc_allocbucket != NULL) {
+	| 		ZONE_UNLOCK(zone);
+	| 	critical_enter();
+	| 	cpu = curcpu;
+	| 	cache = &zone->uz_cpu[cpu];
+	| 
+	| zalloc_start:
+	| 	bucket = cache->uc_allocbucket;
+	| 	bucket = cache->uc_freebucket;
+	| 	if (bucket != NULL && bucket->ub_cnt > 0) {
+	| #ifdef UMA_DEBUG_ALLOC
+	| 		printf("uma_zalloc: Swapping empty with alloc.\n");
+	| #endif
+	| 		cache->uc_freebucket = cache->uc_allocbucket;
+	| 		cache->uc_allocbucket = bucket;
+	| 	cpu = curcpu;
+	| 	cache = &zone->uz_cpu[cpu];
+	| 
+	| zalloc_start:
+	| 	bucket = cache->uc_allocbucket;
+	| 	if (bucket != NULL && bucket->ub_cnt > 0) {
+	| 
+	| 	/*
+	| 	 * We have run out of items in our alloc bucket.
+	| 	 * See if we can switch with our free bucket.
+	| 	 */
+	| 	bucket = cache->uc_freebucket;
+	| 	if (bucket != NULL && bucket->ub_cnt > 0) {
+	| 
+	| 	/*
+	| 	 * Discard any empty allocation bucket while we hold no locks.
+	| 	 */
+	| 	bucket = cache->uc_allocbucket;
+	| 	cache->uc_allocbucket = NULL;
+	| 	critical_exit();
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| static struct uma_bucket_zone *
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| 	ubz = bucket_zone_lookup(bucket->ub_entries);
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 		if (ubz->ubz_entries >= entries)
+	| static struct uma_bucket_zone *
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 		if (ubz->ubz_entries >= entries)
+	| 			return (ubz);
+	| 	ubz--;
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| 	ubz = bucket_zone_lookup(bucket->ub_entries);
+	| 	uma_zfree_arg(ubz->ubz_zone, bucket, udata);
+	| 	critical_exit();
+	| 	if (bucket != NULL)
+	| 		bucket_free(zone, bucket, udata);
+	| 
+	| 	/* Short-circuit for zones without buckets and low memory. */
+	| 	if (zone->uz_count == 0 || bucketdisable)
+	| 	 * preempted or migrate.  As such, make sure not to maintain any
+	| 	 * thread-local state specific to the cache from prior to releasing
+	| 	 * the critical section.
+	| 	 */
+	| 	lockfail = 0;
+	| 	if (ZONE_TRYLOCK(zone) == 0) {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 		/* Record contention to size the buckets. */
+	| 		ZONE_LOCK(zone);
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 		lockfail = 1;
+	| 	}
+	| 	critical_enter();
+	| 	cpu = curcpu;
+	| 	cache = &zone->uz_cpu[cpu];
+	| 
+	| 	/*
+	| 	 * Since we have locked the zone we may as well send back our stats.
+	| 	 */
+	| 	atomic_add_long(&zone->uz_allocs, cache->uc_allocs);
+	| ATOMIC_ASM(add,	     int,   "addl %1,%0",  "ir",  v);
+	| ATOMIC_ASM(subtract, int,   "subl %1,%0",  "ir",  v);
+	| 
+	| ATOMIC_ASM(set,	     long,  "orq %1,%0",   "ir",  v);
+	| ATOMIC_ASM(clear,    long,  "andq %1,%0",  "ir", ~v);
+	| ATOMIC_ASM(add,	     long,  "addq %1,%0",  "ir",  v);
+	| 	atomic_add_long(&zone->uz_frees, cache->uc_frees);
+	| 	cache->uc_allocs = 0;
+	| 	cache->uc_frees = 0;
+	| 
+	| 	/* See if we lost the race to fill the cache. */
+	| 	if (cache->uc_allocbucket != NULL) {
+	| 	}
+	| 
+	| 	/*
+	| 	 * Check the zone's cache of buckets.
+	| 	 */
+	| 	if ((bucket = LIST_FIRST(&zone->uz_buckets)) != NULL) {
+	| 		cache->uc_allocbucket = bucket;
+	| 		ZONE_UNLOCK(zone);
+	| 		goto zalloc_start;
+	| 	}
+	| 	/* We are no longer associated with this CPU. */
+	| 	critical_exit();
+	| 
+	| 	/*
+	| 	 * We bump the uz count when the cache size is insufficient to
+	| 	 * handle the working set.
+	| 	 */
+	| 	if (lockfail && zone->uz_count < BUCKET_MAX)
+	| 		zone->uz_count++;
+	| 	ZONE_UNLOCK(zone);
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	 * This is to stop us from allocating per cpu buckets while we're
+	| 	 * running out of vm.boot_pages.  Otherwise, we would exhaust the
+	| 	 * boot pages.  This also prevents us from allocating buckets in
+	| 	 * low memory situations.
+	| 	 */
+	| 	if (bucketdisable)
+	| 	 * recursion.  This cookie will even persist to frees of unused
+	| 	 * buckets via the allocation path or bucket allocations in the
+	| 	 * free path.
+	| 	 */
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| 	 * a bucket for a bucket zone so we do not allow infinite bucket
+	| 	 * recursion.  This cookie will even persist to frees of unused
+	| 	 * buckets via the allocation path or bucket allocations in the
+	| 	 * free path.
+	| 	 */
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 	else {
+	| 		if ((uintptr_t)udata & UMA_ZFLAG_BUCKET)
+	| 			return (NULL);
+	| 		udata = (void *)((uintptr_t)udata | UMA_ZFLAG_BUCKET);
+	| 	}
+	| 	if ((uintptr_t)udata & UMA_ZFLAG_CACHEONLY)
+	| static struct uma_bucket_zone *
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 			return (NULL);
+	| 		udata = (void *)((uintptr_t)udata | UMA_ZFLAG_BUCKET);
+	| 	}
+	| 	if ((uintptr_t)udata & UMA_ZFLAG_CACHEONLY)
+	| 		flags |= M_NOVM;
+	| 	ubz = bucket_zone_lookup(zone->uz_count);
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 		if (ubz->ubz_entries >= entries)
+	| static struct uma_bucket_zone *
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 		if (ubz->ubz_entries >= entries)
+	| 			return (ubz);
+	| 	ubz--;
+	| 		udata = (void *)((uintptr_t)udata | UMA_ZFLAG_BUCKET);
+	| 	}
+	| 	if ((uintptr_t)udata & UMA_ZFLAG_CACHEONLY)
+	| 		flags |= M_NOVM;
+	| 	ubz = bucket_zone_lookup(zone->uz_count);
+	| 	if (ubz->ubz_zone == zone && (ubz + 1)->ubz_entries != 0)
+	| 		ubz++;
+	| 	bucket = uma_zalloc_arg(ubz->ubz_zone, udata, flags);
+	| 	if (bucket) {
+	| #ifdef INVARIANTS
+	| 		bzero(bucket->ub_bucket, sizeof(void *) * ubz->ubz_entries);
+	| #endif
+	| 		bucket->ub_cnt = 0;
+	| 		bucket->ub_entries = ubz->ubz_entries;
+	| 	/* Don't wait for buckets, preserve caller's NOVM setting. */
+	| 	bucket = bucket_alloc(zone, udata, M_NOWAIT | (flags & M_NOVM));
+	| 	if (bucket == NULL)
+	| 		return (NULL);
+	| 
+	| 	max = MIN(bucket->ub_entries, zone->uz_count);
+	| 	bucket->ub_cnt = zone->uz_import(zone->uz_arg, bucket->ub_bucket,
+	| 	    max, flags);
+	| 
+	| 	/*
+	| 	 * Initialize the memory if necessary.
+	| 	 */
+	| 	if (bucket->ub_cnt != 0 && zone->uz_init != NULL) {
+	| 		int i;
+	| 
+	| 		for (i = 0; i < bucket->ub_cnt; i++)
+	| 	cache->uc_allocs = 0;
+	| 	cache->uc_frees = 0;
+	| 
+	| 	/* See if we lost the race to fill the cache. */
+	| 	if (cache->uc_allocbucket != NULL) {
+	| 		ZONE_UNLOCK(zone);
+	| 	 * Initialize the memory if necessary.
+	| 	 */
+	| 	if (bucket->ub_cnt != 0 && zone->uz_init != NULL) {
+	| 		int i;
+	| 
+	| 		for (i = 0; i < bucket->ub_cnt; i++)
+	| 			if (zone->uz_init(bucket->ub_bucket[i], zone->uz_size,
+	| 	 * Initialize the memory if necessary.
+	| 	 */
+	| 	if (bucket->ub_cnt != 0 && zone->uz_init != NULL) {
+	| 		int i;
+	| 
+	| 		for (i = 0; i < bucket->ub_cnt; i++)
+	| 				break;
+	| 		/*
+	| 		 * If we couldn't initialize the whole bucket, put the
+	| 		 * rest back onto the freelist.
+	| 		 */
+	| 		if (i != bucket->ub_cnt) {
+	| 			zone->uz_release(zone->uz_arg, &bucket->ub_bucket[i],
+	| 			    bucket->ub_cnt - i);
+	| #ifdef INVARIANTS
+	| 			bzero(&bucket->ub_bucket[i],
+	| 			    sizeof(void *) * (bucket->ub_cnt - i));
+	| #endif
+	| 			bucket->ub_cnt = i;
+	| 		}
+	| 	}
+	| 
+	| 	if (bucket->ub_cnt == 0) {
+	| 	 * works we'll restart the allocation from the begining and it
+	| 	 * will use the just filled bucket.
+	| 	 */
+	| 	bucket = zone_alloc_bucket(zone, udata, flags);
+	| 	if (bucket != NULL) {
+	| 		ZONE_LOCK(zone);
+	| 	atomic_add_long(&zone->uz_frees, cache->uc_frees);
+	| 	cache->uc_allocs = 0;
+	| 	cache->uc_frees = 0;
+	| 
+	| 	/* See if we lost the race to fill the cache. */
+	| 	if (cache->uc_allocbucket != NULL) {
+	| 	 */
+	| 	if ((bucket = LIST_FIRST(&zone->uz_buckets)) != NULL) {
+	| 		KASSERT(bucket->ub_cnt != 0,
+	| 		    ("uma_zalloc_arg: Returning an empty bucket."));
+	| 
+	| 		LIST_REMOVE(bucket, ub_link);
+	| 		cache->uc_allocbucket = bucket;
+	| 		ZONE_UNLOCK(zone);
+	| 	 * works we'll restart the allocation from the begining and it
+	| 	 * will use the just filled bucket.
+	| 	 */
+	| 	bucket = zone_alloc_bucket(zone, udata, flags);
+	| 	if (bucket != NULL) {
+	| 		ZONE_LOCK(zone);
+	| 		critical_enter();
+	| 		cpu = curcpu;
+	| 		cache = &zone->uz_cpu[cpu];
+	| 		/*
+	| 		 * See if we lost the race or were migrated.  Cache the
+	| 		 * initialized bucket to make this less likely or claim
+	| 		 * the memory directly.
+	| 		 */
+	| 		if (cache->uc_allocbucket == NULL)
+	| 			cache->uc_allocbucket = bucket;
+	| 		else
+	| 			LIST_INSERT_HEAD(&zone->uz_buckets, bucket, ub_link);
+	| 		ZONE_UNLOCK(zone);
+	| 	cache = &zone->uz_cpu[cpu];
+	| 
+	| zalloc_start:
+	| 	bucket = cache->uc_allocbucket;
+	| 	if (bucket != NULL && bucket->ub_cnt > 0) {
+	| 		bucket->ub_cnt--;
+	| 		item = bucket->ub_bucket[bucket->ub_cnt];
+28.57%	| #ifdef INVARIANTS
+	| 		bucket->ub_bucket[bucket->ub_cnt] = NULL;
+	| #endif
+	| 		KASSERT(item != NULL, ("uma_zalloc: Bucket pointer mangled."));
+	| 		cache->uc_allocs++;
+	| 		critical_exit();
+	| 		if (zone->uz_ctor != NULL &&
+	| 		    zone->uz_ctor(item, zone->uz_size, udata, flags) != 0) {
+	| ATOMIC_ASM(add,	     int,   "addl %1,%0",  "ir",  v);
+	| ATOMIC_ASM(subtract, int,   "subl %1,%0",  "ir",  v);
+	| 
+	| ATOMIC_ASM(set,	     long,  "orq %1,%0",   "ir",  v);
+	| ATOMIC_ASM(clear,    long,  "andq %1,%0",  "ir", ~v);
+	| ATOMIC_ASM(add,	     long,  "addq %1,%0",  "ir",  v);
+	| 	}
+	| #endif
+	| 	if (skip < SKIP_DTOR && zone->uz_dtor)
+	| 		zone->uz_dtor(item, zone->uz_size, udata);
+	| 
+	| 	if (skip < SKIP_FINI && zone->uz_fini)
+	| 		zone->uz_fini(item, zone->uz_size);
+	| 
+	| 	atomic_add_long(&zone->uz_frees, 1);
+	| 	zone->uz_release(zone->uz_arg, &item, 1);
+	| 			return (NULL);
+	| 		}
+	| #ifdef INVARIANTS
+	| 		uma_dbg_alloc(zone, NULL, item);
+	| #endif
+	| 		if (flags & M_ZERO)
+	| 
+	| static void
+	| uma_zero_item(void *item, uma_zone_t zone)
+	| {
+	| 
+	| 	if (zone->uz_flags & UMA_ZONE_PCPU) {
+	| 		for (int i = 0; i < mp_ncpus; i++)
+	| 			bzero(zpcpu_get_cpu(item, i), zone->uz_size);
+	| static void
+	| uma_zero_item(void *item, uma_zone_t zone)
+	| {
+	| 
+	| 	if (zone->uz_flags & UMA_ZONE_PCPU) {
+	| 		for (int i = 0; i < mp_ncpus; i++)
+	| 			bzero(zpcpu_get_cpu(item, i), zone->uz_size);
+	| 	} else
+	| 		bzero(item, zone->uz_size);
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| static struct uma_bucket_zone *
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| 	ubz = bucket_zone_lookup(bucket->ub_entries);
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 		if (ubz->ubz_entries >= entries)
+	| static struct uma_bucket_zone *
+	| bucket_zone_lookup(int entries)
+	| {
+	| 	struct uma_bucket_zone *ubz;
+	| 
+	| 	for (ubz = &bucket_zones[0]; ubz->ubz_entries != 0; ubz++)
+	| 		if (ubz->ubz_entries >= entries)
+	| 			return (ubz);
+	| 	ubz--;
+	| 	KASSERT(bucket->ub_cnt == 0,
+	| 	    ("bucket_free: Freeing a non free bucket."));
+	| 	if ((zone->uz_flags & UMA_ZFLAG_BUCKET) == 0)
+	| 		udata = (void *)(uintptr_t)zone->uz_flags;
+	| 	ubz = bucket_zone_lookup(bucket->ub_entries);
+	| 	uma_zfree_arg(ubz->ubz_zone, bucket, udata);
+	| #ifdef UMA_DEBUG
+	| 	printf("uma_zalloc_arg: Bucketzone returned NULL\n");
+	| #endif
+	| 
+	| zalloc_item:
+	| 	item = zone_alloc_item(zone, udata, flags);
+	| 
+	| 	return (item);
+	| }
+
+Profile trace for function: taskqueue_enqueue() [1.69%]
+	| 	/* Return with lock released. */
+	| 	return (0);
+	| }
+	| int
+	| taskqueue_enqueue(struct taskqueue *queue, struct task *task)
+	| {
+	| 	int res;
+	| 
+	| 	TQ_LOCK(queue);
+66.67%	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+33.33%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	res = taskqueue_enqueue_locked(queue, task);
+	| 	/* The lock is released inside. */
+	| 
+	| 	return (res);
+
+Profile trace for function: sleepq_resume_thread() [1.69%]
+	|  * Removes a thread from a sleep queue and makes it
+	|  * runnable.
+	|  */
+	| static int
+	| sleepq_resume_thread(struct sleepqueue *sq, struct thread *td, int pri)
+	| {
+	| 
+	| 	MPASS(td != NULL);
+	| 	MPASS(sq->sq_wchan != NULL);
+	| 	MPASS(td->td_wchan == sq->sq_wchan);
+	| 	MPASS(td->td_sqqueue < NR_SLEEPQS && td->td_sqqueue >= 0);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	sc = SC_LOOKUP(sq->sq_wchan);
+	| 	mtx_assert(&sc->sc_lock, MA_OWNED);
+	| 
+	| 	SDT_PROBE2(sched, , , wakeup, td, td->td_proc);
+91.67%	| 
+	| 	/* Remove the thread from the queue. */
+	| 	sq->sq_blockedcnt[td->td_sqqueue]--;
+	| 	TAILQ_REMOVE(&sq->sq_blocked[td->td_sqqueue], td, td_slpq);
+	| 	/*
+	| 	 * Get a sleep queue for this thread.  If this is the last waiter,
+	| 	 * use the queue itself and take it out of the chain, otherwise,
+	| 	 * remove a queue from the free list.
+	| 	 */
+	| 	if (LIST_EMPTY(&sq->sq_free)) {
+	| 		sq->sq_wchan = NULL;
+	| #endif
+	| #ifdef SLEEPQUEUE_PROFILING
+	| 		sc->sc_depth--;
+	| #endif
+	| 	} else
+	| 	 * Get a sleep queue for this thread.  If this is the last waiter,
+	| 	 * use the queue itself and take it out of the chain, otherwise,
+	| 	 * remove a queue from the free list.
+	| 	 */
+	| 	if (LIST_EMPTY(&sq->sq_free)) {
+	| 		td->td_sleepqueue = sq;
+8.33%	| #ifdef SLEEPQUEUE_PROFILING
+	| 		sc->sc_depth--;
+	| #endif
+	| 	} else
+	| 		td->td_sleepqueue = LIST_FIRST(&sq->sq_free);
+	| 	LIST_REMOVE(td->td_sleepqueue, sq_hash);
+	| 
+	| 	td->td_wmesg = NULL;
+	| 	td->td_wchan = NULL;
+	| 	td->td_flags &= ~TDF_SINTR;
+	| 	CTR3(KTR_PROC, "sleepq_wakeup: thread %p (pid %ld, %s)",
+	| 	    (void *)td, (long)td->td_proc->p_pid, td->td_name);
+	| 
+	| 	/* Adjust priority if requested. */
+	| 	MPASS(pri == 0 || (pri >= PRI_MIN && pri <= PRI_MAX));
+	| 	if (pri != 0 && td->td_priority > pri &&
+	| 	    PRI_BASE(td->td_pri_class) == PRI_TIMESHARE)
+	| 		sched_prio(td, pri);
+	| 	 * Note that thread td might not be sleeping if it is running
+	| 	 * sleepq_catch_signals() on another CPU or is blocked on its
+	| 	 * proc lock to check signals.  There's no need to mark the
+	| 	 * thread runnable in that case.
+	| 	 */
+	| 	if (TD_IS_SLEEPING(td)) {
+	| 		TD_CLR_SLEEPING(td);
+	| 		return (setrunnable(td));
+	| 	}
+	| 	return (0);
+	| }
+
+Profile trace for function: sleepq_signal() [1.69%]
+	| /*
+	|  * Find the highest priority thread sleeping on a wait channel and resume it.
+	|  */
+	| int
+	| sleepq_signal(void *wchan, int flags, int pri, int queue)
+	| {
+	| {
+	| 	struct sleepqueue_chain *sc;
+	| 	struct sleepqueue *sq;
+	| 
+	| 	KASSERT(wchan != NULL, ("%s: invalid NULL wait channel", __func__));
+	| 	sc = SC_LOOKUP(wchan);
+8.33%	| 	mtx_assert(&sc->sc_lock, MA_OWNED);
+	| 	LIST_FOREACH(sq, &sc->sc_queues, sq_hash)
+58.33%	| 		if (sq->sq_wchan == wchan)
+33.33%	| 	 * tie, use the thread that first appears in the queue as it has
+	| 	 * been sleeping the longest since threads are always added to
+	| 	 * the tail of sleep queues.
+	| 	 */
+	| 	besttd = NULL;
+	| 	TAILQ_FOREACH(td, &sq->sq_blocked[queue], td_slpq) {
+	| 		if (besttd == NULL || td->td_priority < besttd->td_priority)
+	| 			besttd = td;
+	| 	}
+	| 	MPASS(besttd != NULL);
+	| 	thread_lock(besttd);
+	| 	wakeup_swapper = sleepq_resume_thread(sq, besttd, pri);
+	| 	thread_unlock(besttd);
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 	return (wakeup_swapper);
+	| }
+
+Profile trace for function: thread_lock_flags_() [1.69%]
+	| }
+	| #endif /* SMP */
+	| 
+	| void
+	| thread_lock_flags_(struct thread *td, int opts, const char *file, int line)
+	| {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| #endif
+	| 
+	| 	i = 0;
+	| 	tid = (uintptr_t)curthread;
+	| 
+	| 	if (SCHEDULER_STOPPED())
+	| 			}
+	| 			spinlock_enter();
+	| 		}
+	| 		if (m == td->td_lock)
+	| 			break;
+	| 		__mtx_unlock_spin(m);	/* does spinlock_exit() */
+	| #ifdef KDTRACE_HOOKS
+	| 		spin_cnt++;
+	| 	if (SCHEDULER_STOPPED())
+	| 		return;
+	| 
+	| 	for (;;) {
+	| retry:
+	| 		spinlock_enter();
+	| 		m = td->td_lock;
+66.67%	| 		KASSERT(m->mtx_lock != MTX_DESTROYED,
+	| 		    ("thread_lock() of destroyed mutex @ %s:%d", file, line));
+	| 		KASSERT(LOCK_CLASS(&m->lock_object) == &lock_class_mtx_spin,
+	| 		    ("thread_lock() of sleep mutex %s @ %s:%d",
+	| 		    m->lock_object.lo_name, file, line));
+	| 		if (mtx_owned(m))
+33.33%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| static __inline u_long
+	| read_rflags(void)
+	| {
+	| 	u_long	rf;
+	| 
+	| 	__asm __volatile("pushfq; popq %0" : "=r" (rf));
+	| }
+	| 
+	| static __inline void
+	| disable_intr(void)
+	| {
+	| 	__asm __volatile("cli" : : : "memory");
+	| 			if (m->mtx_lock == tid) {
+	| 				m->mtx_recurse++;
+	| 				break;
+	| 			}
+	| #ifdef HWPMC_HOOKS
+	| 			PMC_SOFT_CALL( , , lock, failed);
+	| }
+	| 
+	| static __inline void
+	| write_rflags(u_long rf)
+	| {
+	| 	__asm __volatile("pushq %0;  popfq" : : "r" (rf));
+	| 			    m->lock_object.lo_name, file, line));
+	| 		WITNESS_CHECKORDER(&m->lock_object,
+	| 		    opts | LOP_NEWORDER | LOP_EXCLUSIVE, file, line, NULL);
+	| 		while (!_mtx_obtain_lock(m, tid)) {
+	| #ifdef KDTRACE_HOOKS
+	| 			spin_cnt++;
+	| #endif
+	| 			if (m->mtx_lock == tid) {
+	| 				m->mtx_recurse++;
+	| 				break;
+	| 			}
+	| #ifdef HWPMC_HOOKS
+	| 			PMC_SOFT_CALL( , , lock, failed);
+	| #endif
+	| 			lock_profile_obtain_lock_failed(&m->lock_object,
+	| 			    &contested, &waittime);
+	| 			/* Give interrupts a chance while we spin. */
+	| 			spinlock_exit();
+	| 			while (m->mtx_lock != MTX_UNOWNED) {
+	| 				if (i++ < 10000000)
+	| }
+	| 
+	| static __inline void
+	| ia32_pause(void)
+	| {
+	| 	__asm __volatile("pause");
+	| 					cpu_spinwait();
+	| 				else if (i < 60000000 ||
+	| 				    kdb_active || panicstr != NULL)
+	| 					DELAY(1);
+	| 				else
+	| 					_mtx_lock_spin_failed(m);
+	| 				cpu_spinwait();
+	| 				if (m != td->td_lock)
+	| static void
+	| _mtx_lock_spin_failed(struct mtx *m)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	td = mtx_owner(m);
+	| 					_mtx_lock_spin_failed(m);
+	| 				cpu_spinwait();
+	| 				if (m != td->td_lock)
+	| 					goto retry;
+	| 			}
+	| 			spinlock_enter();
+	| 		__mtx_unlock_spin(m);	/* does spinlock_exit() */
+	| #ifdef KDTRACE_HOOKS
+	| 		spin_cnt++;
+	| #endif
+	| 	}
+	| 	if (m->mtx_recurse == 0)
+	| 				if (m != td->td_lock)
+	| 					goto retry;
+	| 			}
+	| 			spinlock_enter();
+	| 		}
+	| 		if (m == td->td_lock)
+	| 		__mtx_unlock_spin(m);	/* does spinlock_exit() */
+	| #ifdef KDTRACE_HOOKS
+	| 		spin_cnt++;
+	| #endif
+	| 	}
+	| 	if (m->mtx_recurse == 0)
+	| 				if (m != td->td_lock)
+	| 					goto retry;
+	| 			}
+	| 			spinlock_enter();
+	| 		}
+	| 		if (m == td->td_lock)
+	| 			break;
+	| 		__mtx_unlock_spin(m);	/* does spinlock_exit() */
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 		while (!_mtx_obtain_lock(m, tid)) {
+	| #ifdef KDTRACE_HOOKS
+	| 			spin_cnt++;
+	| #endif
+	| 			if (m->mtx_lock == tid) {
+	| 				m->mtx_recurse++;
+	| #ifdef KDTRACE_HOOKS
+	| 		spin_cnt++;
+	| #endif
+	| 	}
+	| 	if (m->mtx_recurse == 0)
+	| 		LOCKSTAT_PROFILE_OBTAIN_LOCK_SUCCESS(LS_MTX_SPIN_LOCK_ACQUIRE,
+	| 		    m, contested, waittime, (file), (line));
+	| 	LOCK_LOG_LOCK("LOCK", &m->lock_object, opts, m->mtx_recurse, file,
+	| 	    line);
+	| 	WITNESS_LOCK(&m->lock_object, opts | LOP_EXCLUSIVE, file, line);
+	| 	LOCKSTAT_RECORD1(LS_THREAD_LOCK_SPIN, m, spin_cnt);
+	| }
+	| 
+	| 	/* If the mutex is unlocked, try again. */
+	| 	if (td == NULL)
+	| 		return;
+	| 
+	| 	printf( "spin lock %p (%s) held by %p (tid %d) too long\n",
+	| 	    m, m->lock_object.lo_name, td, td->td_tid);
+	| #ifdef WITNESS
+	| 	witness_display_spinlock(&m->lock_object, td, printf);
+	| #endif
+	| 	panic("spin lock held too long");
+
+Profile trace for function: sched_choose() [1.55%]
+	|  * the run-queue while running however the load remains.  For SMP we set
+	|  * the tdq in the global idle bitmask if it idles here.
+	|  */
+	| struct thread *
+	| sched_choose(void)
+	| {
+	| 	struct thread *td;
+	| 	struct tdq *tdq;
+	| 
+	| 	tdq = TDQ_SELF();
+9.09%	| tdq_choose(struct tdq *tdq)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	td = runq_choose(&tdq->tdq_realtime);
+	| 	if (td != NULL)
+	| 		return (td);
+	| 	td = runq_choose_from(&tdq->tdq_timeshare, tdq->tdq_ridx);
+	| 		KASSERT(td->td_priority >= PRI_MIN_BATCH,
+	| 		    ("tdq_choose: Invalid priority on timeshare queue %d",
+	| 		    td->td_priority));
+	| 		return (td);
+	| 	}
+	| 	td = runq_choose(&tdq->tdq_idle);
+	| 	struct tdq *tdq;
+	| 
+	| 	tdq = TDQ_SELF();
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	td = tdq_choose(tdq);
+	| 	if (td) {
+	| static __inline void
+	| tdq_runq_rem(struct tdq *tdq, struct thread *td)
+	| {
+	| 	struct td_sched *ts;
+	| 
+	| 	ts = td->td_sched;
+90.91%	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	KASSERT(ts->ts_runq != NULL,
+	| 	    ("tdq_runq_remove: thread %p null ts_runq", td));
+	| 	if (ts->ts_flags & TSF_XFERABLE) {
+	| 		tdq->tdq_transferable--;
+	| 		ts->ts_flags &= ~TSF_XFERABLE;
+	| 	}
+	| 	if (ts->ts_runq == &tdq->tdq_timeshare) {
+	| 		if (tdq->tdq_idx != tdq->tdq_ridx)
+	| 			runq_remove_idx(ts->ts_runq, td, &tdq->tdq_ridx);
+	| 		else
+	| 			runq_remove_idx(ts->ts_runq, td, NULL);
+	| 	} else
+	| 		runq_remove(ts->ts_runq, td);
+	| 	if (ts->ts_flags & TSF_XFERABLE) {
+	| 		tdq->tdq_transferable--;
+	| 		ts->ts_flags &= ~TSF_XFERABLE;
+	| 	}
+	| 	if (ts->ts_runq == &tdq->tdq_timeshare) {
+	| 		if (tdq->tdq_idx != tdq->tdq_ridx)
+	| 			runq_remove_idx(ts->ts_runq, td, &tdq->tdq_ridx);
+	| 	tdq = TDQ_SELF();
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	td = tdq_choose(tdq);
+	| 	if (td) {
+	| 		tdq_runq_rem(tdq, td);
+	| 		tdq->tdq_lowpri = td->td_priority;
+	| 		return (td);
+	| 	}
+	| 	tdq->tdq_lowpri = PRI_MAX_IDLE;
+	| 	return (PCPU_GET(idlethread));
+	| }
+	| 	if (td) {
+	| 		tdq_runq_rem(tdq, td);
+	| 		tdq->tdq_lowpri = td->td_priority;
+	| 		return (td);
+	| 	}
+	| 	tdq->tdq_lowpri = PRI_MAX_IDLE;
+	| 	return (PCPU_GET(idlethread));
+
+Profile trace for function: ether_output() [1.41%]
+	|  * packet leaves a multiple of 512 bytes of data in remainder.
+	|  */
+	| int
+	| ether_output(struct ifnet *ifp, struct mbuf *m,
+	| 	const struct sockaddr *dst, struct route *ro)
+	| {
+	| 	short type;
+	| 	int error = 0, hdrcmplt = 0;
+	| 	u_char esrc[ETHER_ADDR_LEN], edst[ETHER_ADDR_LEN];
+	| 	struct llentry *lle = NULL;
+	| 	struct pf_mtag *t;
+	| 	int loop_copy = 1;
+	| 	int hlen;	/* link layer header length */
+	| 
+	| 	if (ro != NULL) {
+	| 		if (!(m->m_flags & (M_BCAST | M_MCAST)))
+	| 			lle = ro->ro_lle;
+	| 		rt0 = ro->ro_rt;
+	| 	}
+	| #ifdef MAC
+	| 	error = mac_ifnet_check_transmit(ifp, m);
+	| 	if (error)
+	| 		senderr(error);
+	| #endif
+	| 
+	| 	M_PROFILE(m);
+	| 	if (ifp->if_flags & IFF_MONITOR)
+	| 		senderr(ENETDOWN);
+	| 	if (!((ifp->if_flags & IFF_UP) &&
+	| 	    (ifp->if_drv_flags & IFF_DRV_RUNNING)))
+	| 		senderr(ENETDOWN);
+	| 
+	| 	hlen = ETHER_HDR_LEN;
+	| 	switch (dst->sa_family) {
+	| #ifdef INET
+	| 	case AF_INET:
+	| 		if (lle != NULL && (lle->la_flags & LLE_VALID))
+	| 			memcpy(edst, &lle->ll_addr.mac16, sizeof(edst));
+	| 	    {
+	| 		const struct ether_header *eh;
+	| 		
+	| 		hdrcmplt = 1;
+	| 		eh = (const struct ether_header *)dst->sa_data;
+	| 		(void)memcpy(esrc, eh->ether_shost, sizeof (esrc));
+	| 		/* FALLTHROUGH */
+	| 
+	| 	case AF_UNSPEC:
+	| 		loop_copy = 0; /* if this is for us, don't do it */
+	| 		eh = (const struct ether_header *)dst->sa_data;
+	| 		(void)memcpy(edst, eh->ether_dhost, sizeof (edst));
+	| 		type = eh->ether_type;
+	| 	}
+	| 	break;
+	| #endif
+	| #ifdef INET6
+	| 	case AF_INET6:
+	| 		if (lle != NULL && (lle->la_flags & LLE_VALID))
+	| 			memcpy(edst, &lle->ll_addr.mac16, sizeof(edst));
+	| 		else
+	| 			error = nd6_storelladdr(ifp, m, dst, (u_char *)edst, &lle);
+	| 		if (error)
+	| 			return error;
+	| 		type = htons(ETHERTYPE_IPV6);
+	| 		type = htons(ETHERTYPE_IP);
+	| 		break;
+	| 	case AF_ARP:
+	| 	{
+	| 		struct arphdr *ah;
+	| 		ah = mtod(m, struct arphdr *);
+	| 		ah->ar_hrd = htons(ARPHRD_ETHER);
+	| 
+	| 		loop_copy = 0; /* if this is for us, don't do it */
+	| 
+	| 		switch(ntohs(ah->ar_op)) {
+	| 
+	| static __inline __uint16_t
+	| __bswap16_var(__uint16_t _x)
+	| {
+	| 
+	| 	return (__bswap16_gen(_x));
+	| 		case ARPOP_REVREQUEST:
+	| 		case ARPOP_REVREPLY:
+	| 			type = htons(ETHERTYPE_REVARP);
+	| 			break;
+	| 		loop_copy = 0; /* if this is for us, don't do it */
+	| 
+	| 		switch(ntohs(ah->ar_op)) {
+	| 		case ARPOP_REVREQUEST:
+	| 		case ARPOP_REVREPLY:
+	| 			type = htons(ETHERTYPE_REVARP);
+	| 		default:
+	| 			type = htons(ETHERTYPE_ARP);
+	| 			break;
+	| 		}
+	| 
+	| 		if (m->m_flags & M_BCAST)
+	| 			bcopy(ifp->if_broadcastaddr, edst, ETHER_ADDR_LEN);
+	| 		(void)memcpy(edst, eh->ether_dhost, sizeof (edst));
+	| 		type = eh->ether_type;
+	| 		break;
+	|             }
+	| 	default:
+	| 		if_printf(ifp, "can't handle af%d\n", dst->sa_family);
+	| 	/* Handle ng_ether(4) processing, if any */
+	| 	if (IFP2AC(ifp)->ac_netgraph != NULL) {
+	| 		KASSERT(ng_ether_output_p != NULL,
+	| 		    ("ng_ether_output_p is NULL"));
+	| 		if ((error = (*ng_ether_output_p)(ifp, &m)) != 0) {
+	| 				m_freem(m);
+	| 			return (0);
+	| 	}
+	| 
+	| 	/* Continue with link-layer output */
+	| 	return ether_output_frame(ifp, m);
+	| }
+	| #ifdef INET6
+	| 	case AF_INET6:
+	| 		if (lle != NULL && (lle->la_flags & LLE_VALID))
+	| 			memcpy(edst, &lle->ll_addr.mac16, sizeof(edst));
+	| 		else
+	| 			error = nd6_storelladdr(ifp, m, dst, (u_char *)edst, &lle);
+	| 		if (error)
+	| 			return error;
+	| 		type = htons(ETHERTYPE_IPV6);
+	| #ifdef INET
+	| 	case AF_INET:
+	| 		if (lle != NULL && (lle->la_flags & LLE_VALID))
+	| 			memcpy(edst, &lle->ll_addr.mac16, sizeof(edst));
+	| 		else
+	| 			error = arpresolve(ifp, rt0, m, dst, edst, &lle);
+	| 		if (error)
+	| 			return (error == EWOULDBLOCK ? 0 : error);
+	| 		type = htons(ETHERTYPE_IP);
+	| 		}
+	| 
+	| 		if (m->m_flags & M_BCAST)
+	| 			bcopy(ifp->if_broadcastaddr, edst, ETHER_ADDR_LEN);
+	| 		else
+	| 			bcopy(ar_tha(ah), edst, ETHER_ADDR_LEN);
+	| 			type = htons(ETHERTYPE_ARP);
+	| 			break;
+	| 		}
+	| 
+	| 		if (m->m_flags & M_BCAST)
+	| 			bcopy(ifp->if_broadcastaddr, edst, ETHER_ADDR_LEN);
+	| 	default:
+	| 		if_printf(ifp, "can't handle af%d\n", dst->sa_family);
+	| 		senderr(EAFNOSUPPORT);
+	| 	}
+	| 
+	| 	if (lle != NULL && (lle->la_flags & LLE_IFADDR)) {
+	| 		update_mbuf_csumflags(m, m);
+	| static void
+	| update_mbuf_csumflags(struct mbuf *src, struct mbuf *dst)
+	| {
+	| 	int csum_flags = 0;
+	| 
+	| 	if (src->m_pkthdr.csum_flags & CSUM_IP)
+	| 		csum_flags |= (CSUM_IP_CHECKED|CSUM_IP_VALID);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_DELAY_DATA)
+	| 		csum_flags |= (CSUM_DATA_VALID|CSUM_PSEUDO_HDR);
+	| {
+	| 	int csum_flags = 0;
+	| 
+	| 	if (src->m_pkthdr.csum_flags & CSUM_IP)
+	| 		csum_flags |= (CSUM_IP_CHECKED|CSUM_IP_VALID);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_DELAY_DATA)
+	| 		csum_flags |= (CSUM_DATA_VALID|CSUM_PSEUDO_HDR);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_SCTP)
+	| 		csum_flags |= CSUM_SCTP_VALID;
+	| 	dst->m_pkthdr.csum_flags |= csum_flags;
+	| 	if (csum_flags & CSUM_DATA_VALID)
+	| 		dst->m_pkthdr.csum_data = 0xffff;
+	| 		senderr(EAFNOSUPPORT);
+	| 	}
+	| 
+	| 	if (lle != NULL && (lle->la_flags & LLE_IFADDR)) {
+	| 		update_mbuf_csumflags(m, m);
+	| 		return (if_simloop(ifp, m, dst->sa_family, 0));
+100.00%	| 
+	| 	/*
+	| 	 * Add local net header.  If no space in first mbuf,
+	| 	 * allocate another.
+	| 	 */
+	| 	M_PREPEND(m, ETHER_HDR_LEN, M_NOWAIT);
+	| 	if (m == NULL)
+	| 		senderr(ENOBUFS);
+	| 	eh = mtod(m, struct ether_header *);
+	| 	(void)memcpy(&eh->ether_type, &type,
+	| 		sizeof(eh->ether_type));
+	| 	(void)memcpy(eh->ether_dhost, edst, sizeof (edst));
+	| 	if (hdrcmplt)
+	| 		(void)memcpy(eh->ether_shost, esrc,
+	| 		senderr(ENOBUFS);
+	| 	eh = mtod(m, struct ether_header *);
+	| 	(void)memcpy(&eh->ether_type, &type,
+	| 		sizeof(eh->ether_type));
+	| 	(void)memcpy(eh->ether_dhost, edst, sizeof (edst));
+	| 	if (hdrcmplt)
+	| 
+	| 	/*
+	| 	 * Add local net header.  If no space in first mbuf,
+	| 	 * allocate another.
+	| 	 */
+	| 	M_PREPEND(m, ETHER_HDR_LEN, M_NOWAIT);
+	| 	(void)memcpy(eh->ether_dhost, edst, sizeof (edst));
+	| 	if (hdrcmplt)
+	| 		(void)memcpy(eh->ether_shost, esrc,
+	| 			sizeof(eh->ether_shost));
+	| 	else
+	| 		(void)memcpy(eh->ether_shost, IF_LLADDR(ifp),
+	| 	 * device, we should copy in the case of sending to our own
+	| 	 * ethernet address (thus letting the original actually appear
+	| 	 * on the wire). However, we don't do that here for security
+	| 	 * reasons and compatibility with the original behavior.
+	| 	 */
+	| 	if ((ifp->if_flags & IFF_SIMPLEX) && loop_copy &&
+	| 	    ((t = pf_find_mtag(m)) == NULL || !t->routed)) {
+	| }
+	| 
+	| static __inline struct m_tag *
+	| m_tag_find(struct mbuf *m, int type, struct m_tag *start)
+	| {
+	| 	return (SLIST_EMPTY(&m->m_pkthdr.tags) ? (struct m_tag *)NULL :
+	| 	    m_tag_locate(m, MTAG_ABI_COMPAT, type, start));
+	| 		if (m->m_flags & M_BCAST) {
+	| 			 *
+	| 			 * XXX This is a local workaround.  A number of less
+	| 			 * often used kernel parts suffer from the same bug.
+	| 			 * See PR kern/105943 for a proposed general solution.
+	| 			 */
+	| 			if ((n = m_dup(m, M_NOWAIT)) != NULL) {
+	| 				update_mbuf_csumflags(m, n);
+	| static void
+	| update_mbuf_csumflags(struct mbuf *src, struct mbuf *dst)
+	| {
+	| 	int csum_flags = 0;
+	| 
+	| 	if (src->m_pkthdr.csum_flags & CSUM_IP)
+	| 		csum_flags |= (CSUM_IP_CHECKED|CSUM_IP_VALID);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_DELAY_DATA)
+	| 		csum_flags |= (CSUM_DATA_VALID|CSUM_PSEUDO_HDR);
+	| {
+	| 	int csum_flags = 0;
+	| 
+	| 	if (src->m_pkthdr.csum_flags & CSUM_IP)
+	| 		csum_flags |= (CSUM_IP_CHECKED|CSUM_IP_VALID);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_DELAY_DATA)
+	| 		csum_flags |= (CSUM_DATA_VALID|CSUM_PSEUDO_HDR);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_SCTP)
+	| 		csum_flags |= CSUM_SCTP_VALID;
+	| 	dst->m_pkthdr.csum_flags |= csum_flags;
+	| 	if (csum_flags & CSUM_DATA_VALID)
+	| 		dst->m_pkthdr.csum_data = 0xffff;
+	| 			 * often used kernel parts suffer from the same bug.
+	| 			 * See PR kern/105943 for a proposed general solution.
+	| 			 */
+	| 			if ((n = m_dup(m, M_NOWAIT)) != NULL) {
+	| 				update_mbuf_csumflags(m, n);
+	| 				(void)if_simloop(ifp, n, dst->sa_family, hlen);
+	| 			} else
+	| 				ifp->if_iqdrops++;
+	| 		} else if (bcmp(eh->ether_dhost, eh->ether_shost,
+	| 				ETHER_ADDR_LEN) == 0) {
+	| 			update_mbuf_csumflags(m, m);
+	| static void
+	| update_mbuf_csumflags(struct mbuf *src, struct mbuf *dst)
+	| {
+	| 	int csum_flags = 0;
+	| 
+	| 	if (src->m_pkthdr.csum_flags & CSUM_IP)
+	| 		csum_flags |= (CSUM_IP_CHECKED|CSUM_IP_VALID);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_DELAY_DATA)
+	| 		csum_flags |= (CSUM_DATA_VALID|CSUM_PSEUDO_HDR);
+	| {
+	| 	int csum_flags = 0;
+	| 
+	| 	if (src->m_pkthdr.csum_flags & CSUM_IP)
+	| 		csum_flags |= (CSUM_IP_CHECKED|CSUM_IP_VALID);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_DELAY_DATA)
+	| 		csum_flags |= (CSUM_DATA_VALID|CSUM_PSEUDO_HDR);
+	| 	if (src->m_pkthdr.csum_flags & CSUM_SCTP)
+	| 		csum_flags |= CSUM_SCTP_VALID;
+	| 	dst->m_pkthdr.csum_flags |= csum_flags;
+	| 	if (csum_flags & CSUM_DATA_VALID)
+	| 		dst->m_pkthdr.csum_data = 0xffff;
+	| 			} else
+	| 				ifp->if_iqdrops++;
+	| 		} else if (bcmp(eh->ether_dhost, eh->ether_shost,
+	| 				ETHER_ADDR_LEN) == 0) {
+	| 			update_mbuf_csumflags(m, m);
+	| 			(void) if_simloop(ifp, m, dst->sa_family, hlen);
+	| 			 */
+	| 			if ((n = m_dup(m, M_NOWAIT)) != NULL) {
+	| 				update_mbuf_csumflags(m, n);
+	| 				(void)if_simloop(ifp, n, dst->sa_family, hlen);
+	| 			} else
+	| 				ifp->if_iqdrops++;
+	| 	}
+	| 
+	|        /*
+	| 	* Bridges require special output handling.
+	| 	*/
+	| 	if (ifp->if_bridge) {
+	| 		BRIDGE_OUTPUT(ifp, m, error);
+	| 
+	| 	/*
+	| 	 * Queue message on interface, update output statistics if
+	| 	 * successful, and start output if interface not yet active.
+	| 	 */
+	| 	return ((ifp->if_transmit)(ifp, m));
+	| 		BRIDGE_OUTPUT(ifp, m, error);
+	| 		return (error);
+	| 	}
+	| 
+	| #if defined(INET) || defined(INET6)
+	| 	if (ifp->if_carp &&
+	| 	    (error = (*carp_output_p)(ifp, m, dst)))
+	| 		goto bad;
+	| #endif
+	| 
+	| 	/* Handle ng_ether(4) processing, if any */
+	| 	if (IFP2AC(ifp)->ac_netgraph != NULL) {
+	| 		KASSERT(ng_ether_output_p != NULL,
+	| 		    ("ng_ether_output_p is NULL"));
+	| 		if ((error = (*ng_ether_output_p)(ifp, &m)) != 0) {
+	| 				m_freem(m);
+	| 			return (error);
+	| 		}
+	| 		if (m == NULL)
+	| 			return (0);
+	| 	}
+	| 
+	| 	/* Continue with link-layer output */
+	| 	return ether_output_frame(ifp, m);
+	| int
+	| ether_output_frame(struct ifnet *ifp, struct mbuf *m)
+	| {
+	| 	int i;
+	| 
+	| 	if (PFIL_HOOKED(&V_link_pfil_hook)) {
+	| 		i = pfil_run_hooks(&V_link_pfil_hook, &m, ifp, PFIL_OUT, NULL);
+	| 
+	| 		if (i != 0)
+	| 			return (EACCES);
+	| 
+	| 		if (m == NULL)
+	| 
+	| 	/*
+	| 	 * Queue message on interface, update output statistics if
+	| 	 * successful, and start output if interface not yet active.
+	| 	 */
+	| 	return ((ifp->if_transmit)(ifp, m));
+
+Profile trace for function: _mtx_trylock_flags_() [1.41%]
+	|  * Tries to acquire lock `m.'  If this function is called on a mutex that
+	|  * is already owned, it will recursively acquire the lock.
+	|  */
+	| int
+	| _mtx_trylock_flags_(volatile uintptr_t *c, int opts, const char *file, int line)
+	| {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	uint64_t waittime = 0;
+	| 	int contested = 0;
+	| #endif
+	| 	int rval;
+	| 
+	| 	if (SCHEDULER_STOPPED())
+	| 		return (1);
+	| 
+	| 	m = mtxlock2mtx(c);
+90.00%	| 	    ("mtx_trylock() of destroyed mutex @ %s:%d", file, line));
+	| 	KASSERT(LOCK_CLASS(&m->lock_object) == &lock_class_mtx_sleep,
+	| 	    ("mtx_trylock() of spin mutex %s @ %s:%d", m->lock_object.lo_name,
+	| 	    file, line));
+	| 
+	| 	if (mtx_owned(m) && ((m->lock_object.lo_flags & LO_RECURSABLE) != 0 ||
+	| 	    (opts & MTX_RECURSE) != 0)) {
+	| 		m->mtx_recurse++;
+	| ATOMIC_ASM(set,	     int,   "orl %1,%0",   "ir",  v);
+	| ATOMIC_ASM(clear,    int,   "andl %1,%0",  "ir", ~v);
+	| ATOMIC_ASM(add,	     int,   "addl %1,%0",  "ir",  v);
+	| ATOMIC_ASM(subtract, int,   "subl %1,%0",  "ir",  v);
+	| 
+	| ATOMIC_ASM(set,	     long,  "orq %1,%0",   "ir",  v);
+10.00%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	: "=q" (res),			/* 0 */
+	| 	  "+m" (*dst),			/* 1 */
+	| 	  "+a" (expect)			/* 2 */
+	| 	: "r" (src)			/* 3 */
+	| 	: "memory", "cc");
+	| 	return (res);
+	| 
+	| 	LOCK_LOG_TRY("LOCK", &m->lock_object, opts, rval, file, line);
+	| 	if (rval) {
+	| 		WITNESS_LOCK(&m->lock_object, opts | LOP_EXCLUSIVE | LOP_TRYLOCK,
+	| 		    file, line);
+	| 		curthread->td_locks++;
+	| 		if (m->mtx_recurse == 0)
+	| 			LOCKSTAT_PROFILE_OBTAIN_LOCK_SUCCESS(LS_MTX_LOCK_ACQUIRE,
+	| 			    m, contested, waittime, file, line);
+	| 
+	| 	}
+	| 
+	| 	return (rval);
+	| }
+
+Profile trace for function: ixgbe_msix_que() [1.41%]
+	|  *  MSIX Queue Interrupt Service routine
+	|  *
+	|  **********************************************************************/
+	| void
+	| ixgbe_msix_que(void *arg)
+	| {
+	| 	struct ix_queue	*que = arg;
+	| 	struct adapter  *adapter = que->adapter;
+	| 	struct ifnet    *ifp = adapter->ifp;
+	| 	struct rx_ring	*rxr = que->rxr;
+	| 	bool		more;
+	| 	u32		newitr = 0;
+	| 
+	| 	/* Protect against spurious interrupts */
+	| 	if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
+	| ixgbe_msix_que(void *arg)
+	| {
+	| 	struct ix_queue	*que = arg;
+	| 	struct adapter  *adapter = que->adapter;
+	| 	struct ifnet    *ifp = adapter->ifp;
+	| 	struct tx_ring	*txr = que->txr;
+	| 	struct rx_ring	*rxr = que->rxr;
+	| 
+	| 	/* Protect against spurious interrupts */
+	| 	if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
+	| 		return;
+	| 
+	| 	ixgbe_disable_queue(adapter, que->msix);
+	| 
+	| static inline void
+	| ixgbe_disable_queue(struct adapter *adapter, u32 vector)
+	| {
+	| 	struct ixgbe_hw *hw = &adapter->hw;
+	| 	u64	queue = (u64)(1 << vector);
+	| 	u32	mask;
+	| 
+	| 	if (hw->mac.type == ixgbe_mac_82598EB) {
+	|                 mask = (IXGBE_EIMS_RTX_QUEUE & queue);
+	|                 IXGBE_WRITE_REG(hw, IXGBE_EIMC, mask);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	| 
+	| static inline void
+	| ixgbe_disable_queue(struct adapter *adapter, u32 vector)
+	| {
+	| 	struct ixgbe_hw *hw = &adapter->hw;
+	| 	u64	queue = (u64)(1 << vector);
+	|                 mask = (IXGBE_EIMS_RTX_QUEUE & queue);
+	|                 IXGBE_WRITE_REG(hw, IXGBE_EIMC, mask);
+	| 	} else {
+	|                 mask = (queue & 0xFFFFFFFF);
+	|                 if (mask)
+	|                         IXGBE_WRITE_REG(hw, IXGBE_EIMC_EX(0), mask);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	| }
+	| 
+	| static __inline void
+	| outl(u_int port, u_int data)
+	| {
+	| 	__asm __volatile("outl %0, %w1" : : "a" (data), "Nd" (port));
+	|                 mask = (queue >> 32);
+	|                 if (mask)
+	|                         IXGBE_WRITE_REG(hw, IXGBE_EIMC_EX(1), mask);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	| 	/* Protect against spurious interrupts */
+	| 	if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
+	| 		return;
+	| 
+	| 	ixgbe_disable_queue(adapter, que->msix);
+	| 	++que->irqs;
+	| 
+	| 	more = ixgbe_rxeof(que);
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 
+	| 	IXGBE_TX_LOCK(txr);
+20.00%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	ixgbe_txeof(txr);
+	| #ifdef IXGBE_LEGACY_TX
+	| 	if (!IFQ_DRV_IS_EMPTY(ifp->if_snd))
+	| 		ixgbe_start_locked(txr, ifp);
+	| #else
+	| 	if (!drbr_empty(ifp, txr->br))
+50.00%	| 
+	| static __inline int
+	| buf_ring_empty(struct buf_ring *br)
+	| {
+	| 
+	| 	return (br->br_cons_head == br->br_prod_tail);
+	| 		ixgbe_mq_start_locked(ifp, txr);
+20.00%	| #endif
+	| 	IXGBE_TX_UNLOCK(txr);
+	| 
+	| 	/* Do AIM now? */
+	| 
+	| 	if (ixgbe_enable_aim == FALSE)
+	| 	** Do Adaptive Interrupt Moderation:
+	|         **  - Write out last calculated setting
+	| 	**  - Calculate based on average size over
+	| 	**    the last interval.
+	| 	*/
+	|         if (que->eitr_setting)
+	|                 IXGBE_WRITE_REG(&adapter->hw,
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	|                     IXGBE_EITR(que->msix), que->eitr_setting);
+	|  
+	|         que->eitr_setting = 0;
+	| 
+	|         /* Idle, do nothing */
+	|         if ((txr->bytes == 0) && (rxr->bytes == 0))
+	|                 goto no_calc;
+	|                                 
+	| 	if ((txr->bytes) && (txr->packets))
+	|                	newitr = txr->bytes/txr->packets;
+	|                     IXGBE_EITR(que->msix), que->eitr_setting);
+	|  
+	|         que->eitr_setting = 0;
+	| 
+	|         /* Idle, do nothing */
+	|         if ((txr->bytes == 0) && (rxr->bytes == 0))
+	|                 goto no_calc;
+	|                                 
+	| 	if ((txr->bytes) && (txr->packets))
+	|                	newitr = txr->bytes/txr->packets;
+	| 	if ((rxr->bytes) && (rxr->packets))
+	| 		newitr = max(newitr,
+	| 
+	| static __inline int imax(int a, int b) { return (a > b ? a : b); }
+	| static __inline int imin(int a, int b) { return (a < b ? a : b); }
+	| static __inline long lmax(long a, long b) { return (a > b ? a : b); }
+	| static __inline long lmin(long a, long b) { return (a < b ? a : b); }
+	| static __inline u_int max(u_int a, u_int b) { return (a > b ? a : b); }
+	| 		    (rxr->bytes / rxr->packets));
+	| 	newitr += 24; /* account for hardware frame, crc */
+	| static __inline u_int min(u_int a, u_int b) { return (a < b ? a : b); }
+	| 
+	| 	/* set an upper boundary */
+	| 	newitr = min(newitr, 3000);
+	| 
+	| 	/* Be nice to the mid range */
+	| 	if ((newitr > 300) && (newitr < 1200))
+	| 		newitr = (newitr / 3);
+	| 	else
+	| 		newitr = (newitr / 2);
+	| 
+	|         if (adapter->hw.mac.type == ixgbe_mac_82598EB)
+	|                 newitr |= newitr << 16;
+	|         else
+	|                 newitr |= IXGBE_EITR_CNT_WDIS;
+	|                  
+	|         /* save for next interrupt */
+	|         que->eitr_setting = newitr;
+	| 
+	|         /* Reset state */
+	|         txr->bytes = 0;
+	|         txr->packets = 0;
+	|         rxr->bytes = 0;
+	|         rxr->packets = 0;
+	| 
+	| no_calc:
+	| 	if (more)
+	| 		taskqueue_enqueue(que->tq, &que->que_task);
+	| 	else
+	| 		ixgbe_enable_queue(adapter, que->msix);
+	| 
+	| static inline void
+	| ixgbe_enable_queue(struct adapter *adapter, u32 vector)
+	| {
+	| 	struct ixgbe_hw *hw = &adapter->hw;
+	| 	u64	queue = (u64)(1 << vector);
+	| 	u32	mask;
+	| 
+	| 	if (hw->mac.type == ixgbe_mac_82598EB) {
+	|                 mask = (IXGBE_EIMS_RTX_QUEUE & queue);
+	|                 IXGBE_WRITE_REG(hw, IXGBE_EIMS, mask);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+10.00%	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	| 
+	| static inline void
+	| ixgbe_enable_queue(struct adapter *adapter, u32 vector)
+	| {
+	| 	struct ixgbe_hw *hw = &adapter->hw;
+	| 	u64	queue = (u64)(1 << vector);
+	|                 mask = (IXGBE_EIMS_RTX_QUEUE & queue);
+	|                 IXGBE_WRITE_REG(hw, IXGBE_EIMS, mask);
+	| 	} else {
+	|                 mask = (queue & 0xFFFFFFFF);
+	|                 if (mask)
+	|                         IXGBE_WRITE_REG(hw, IXGBE_EIMS_EX(0), mask);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	|                 mask = (queue >> 32);
+	|                 if (mask)
+	|                         IXGBE_WRITE_REG(hw, IXGBE_EIMS_EX(1), mask);
+	| bus_space_write_4(bus_space_tag_t tag, bus_space_handle_t bsh,
+	| 		       bus_size_t offset, u_int32_t value)
+	| {
+	| 
+	| 	if (tag == X86_BUS_SPACE_IO)
+	| 		outl(bsh + offset, value);
+	| 	else
+	| 		*(volatile u_int32_t *)(bsh + offset) = value;
+	| 	if (more)
+	| 		taskqueue_enqueue(que->tq, &que->que_task);
+	| 	else
+	| 		ixgbe_enable_queue(adapter, que->msix);
+	| 	return;
+	| }
+
+Profile trace for function: m_tag_delete_chain() [1.27%]
+100.00%	| }
+	| 
+	| /* Unlink and free a packet tag chain, starting from given tag. */
+	| void
+	| m_tag_delete_chain(struct mbuf *m, struct m_tag *t)
+	| {
+	| 
+	| 	KASSERT(m, ("m_tag_delete_chain: null mbuf"));
+	| 	if (t != NULL)
+	| 		p = t;
+	| 	else
+	| 		p = SLIST_FIRST(&m->m_pkthdr.tags);
+	| 	if (p == NULL)
+	| 		return;
+	| 	while ((q = SLIST_NEXT(p, m_tag_link)) != NULL)
+	|  */
+	| static __inline void
+	| m_tag_unlink(struct mbuf *m, struct m_tag *t)
+	| {
+	| 
+	| 	SLIST_REMOVE(&m->m_pkthdr.tags, t, m_tag, m_tag_link);
+	|  */
+	| static __inline void
+	| m_tag_free(struct m_tag *t)
+	| {
+	| 
+	| 	(*t->m_tag_free)(t);
+	|  */
+	| static __inline void
+	| m_tag_unlink(struct mbuf *m, struct m_tag *t)
+	| {
+	| 
+	| 	SLIST_REMOVE(&m->m_pkthdr.tags, t, m_tag, m_tag_link);
+	|  */
+	| static __inline void
+	| m_tag_free(struct m_tag *t)
+	| {
+	| 
+	| 	(*t->m_tag_free)(t);
+	| 		m_tag_delete(m, q);
+	| 	m_tag_delete(m, p);
+	| }
+
+Profile trace for function: taskqueue_run_locked() [1.13%]
+	| 	TQ_UNLOCK(queue);
+	| }
+	| 
+	| static void
+	| taskqueue_run_locked(struct taskqueue *queue)
+	| {
+	| 	struct taskqueue_busy tb;
+	| 	struct task *task;
+	| 	int pending;
+	| 
+	| 	TQ_ASSERT_LOCKED(queue);
+	| 	tb.tb_running = NULL;
+25.00%	| 	TAILQ_INSERT_TAIL(&queue->tq_active, &tb, tb_link);
+	| 
+	| 	while (STAILQ_FIRST(&queue->tq_queue)) {
+	| 		task = STAILQ_FIRST(&queue->tq_queue);
+	| 		STAILQ_REMOVE_HEAD(&queue->tq_queue, ta_link);
+	| 		pending = task->ta_pending;
+	| 		task->ta_pending = 0;
+	| 		tb.tb_running = task;
+	| 		TQ_UNLOCK(queue);
+37.50%	| 		/*
+	| 		 * Carefully remove the first task from the queue and
+	| 		 * zero its pending count.
+	| 		 */
+	| 		task = STAILQ_FIRST(&queue->tq_queue);
+	| 		STAILQ_REMOVE_HEAD(&queue->tq_queue, ta_link);
+	| 		pending = task->ta_pending;
+	| 		task->ta_pending = 0;
+	| 		tb.tb_running = task;
+	| 		TQ_UNLOCK(queue);
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 
+	| 		task->ta_func(task->ta_context, pending);
+25.00%	| 
+	| 		TQ_LOCK(queue);
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 		tb.tb_running = NULL;
+	| 		wakeup(task);
+	| 
+	| 	TQ_ASSERT_LOCKED(queue);
+	| 	tb.tb_running = NULL;
+	| 	TAILQ_INSERT_TAIL(&queue->tq_active, &tb, tb_link);
+	| 
+	| 	while (STAILQ_FIRST(&queue->tq_queue)) {
+	| 	struct task *task;
+	| 	int pending;
+	| 
+	| 	TQ_ASSERT_LOCKED(queue);
+	| 	tb.tb_running = NULL;
+	| 	TAILQ_INSERT_TAIL(&queue->tq_active, &tb, tb_link);
+	| 
+	| 		TQ_LOCK(queue);
+	| 		tb.tb_running = NULL;
+	| 		wakeup(task);
+	| 	}
+	| 	TAILQ_REMOVE(&queue->tq_active, &tb, tb_link);
+12.50%	| 	if (TAILQ_EMPTY(&queue->tq_active))
+	| 		wakeup(&queue->tq_active);
+	| }
+
+Profile trace for function: sched_add() [0.99%]
+	|  * Select the target thread queue and add a thread to it.  Request
+	|  * preemption or IPI a remote processor if required.
+	|  */
+	| void
+	| sched_add(struct thread *td, int flags)
+	| {
+	| 	KTR_STATE2(KTR_SCHED, "thread", sched_tdname(td), "runq add",
+	| 	    "prio:%d", td->td_priority, KTR_ATTR_LINKED,
+	| 	    sched_tdname(curthread));
+	| 	KTR_POINT1(KTR_SCHED, "thread", sched_tdname(curthread), "wokeup",
+	| 	    KTR_ATTR_LINKED, sched_tdname(td));
+	| 	SDT_PROBE4(sched, , , enqueue, td, td->td_proc, NULL, 
+	| 	    flags & SRQ_PREEMPTED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+14.29%	| 	/*
+	| 	 * Recalculate the priority before we select the target cpu or
+	| 	 * run-queue.
+	| 	 */
+	| 	if (PRI_BASE(td->td_pri_class) == PRI_TIMESHARE)
+	| 		sched_priority(td);
+	| #ifdef SMP
+	| 	/*
+	| 	 * Pick the destination cpu and if it isn't ours transfer to the
+	| 	 * target cpu.
+	| 	 */
+	| 	cpu = sched_pickcpu(td, flags);
+	| sched_setcpu(struct thread *td, int cpu, int flags)
+	| {
+	| 
+	| 	struct tdq *tdq;
+	| 
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	tdq = TDQ_CPU(cpu);
+	| 	td->td_sched->ts_cpu = cpu;
+	| 	/*
+	| 	 * If the lock matches just return the queue.
+	| 	 */
+	| 	if (td->td_lock == TDQ_LOCKPTR(tdq))
+	| #endif
+	| 	/*
+	| 	 * The hard case, migration, we need to block the thread first to
+	| 	 * prevent order reversals with other cpus locks.
+	| 	 */
+	| 	spinlock_enter();
+	| 	thread_lock_block(td);
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	TDQ_LOCK(tdq);
+71.43%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	thread_lock_unblock(td, TDQ_LOCKPTR(tdq));
+	| 	spinlock_exit();
+	| 	KASSERT((TD_CAN_RUN(td) || TD_IS_RUNNING(td)),
+	| 	    ("sched_add: bad thread state"));
+	| 	KASSERT(td->td_flags & TDF_INMEM,
+	| 	    ("sched_add: thread swapped out"));
+	| 
+	| 	if (td->td_priority < tdq->tdq_lowpri)
+	| 		tdq->tdq_lowpri = td->td_priority;
+	| {
+	| 	struct td_sched *ts;
+	| 	u_char pri;
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TD_SET_RUNQ(td);
+	| 	if (THREAD_CAN_MIGRATE(td)) {
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	pri = td->td_priority;
+	| 	ts = td->td_sched;
+	| 	TD_SET_RUNQ(td);
+	| 	if (THREAD_CAN_MIGRATE(td)) {
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_realtime;
+	| 	} else if (pri <= PRI_MAX_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_timeshare;
+	| 			("Invalid priority %d on timeshare runq", pri));
+	| 		/*
+	| 		 * This queue contains only priorities between MIN and MAX
+	| 		 * realtime.  Use the whole queue to represent these values.
+	| 		 */
+	| 		if ((flags & (SRQ_BORROWING|SRQ_PREEMPTED)) == 0) {
+	| 			 */
+	| 			if (tdq->tdq_ridx != tdq->tdq_idx &&
+	| 			    pri == tdq->tdq_ridx)
+	| 				pri = (unsigned char)(pri - 1) % RQ_NQS;
+	| 		} else
+	| 			pri = tdq->tdq_ridx;
+	| 		runq_add_pri(ts->ts_runq, td, pri, flags);
+	| 		return;
+	| 	} else
+	| 		ts->ts_runq = &tdq->tdq_idle;
+	| 	runq_add(ts->ts_runq, td, flags);
+	| 		/*
+	| 		 * This queue contains only priorities between MIN and MAX
+	| 		 * realtime.  Use the whole queue to represent these values.
+	| 		 */
+	| 		if ((flags & (SRQ_BORROWING|SRQ_PREEMPTED)) == 0) {
+	| 			pri = RQ_NQS * (pri - PRI_MIN_BATCH) / PRI_BATCH_RANGE;
+	| 			pri = (pri + tdq->tdq_idx) % RQ_NQS;
+	| 			/*
+	| 			 * This effectively shortens the queue by one so we
+	| 			 * can have a one slot difference between idx and
+	| 			 * ridx while we wait for threads to drain.
+	| 			 */
+	| 			if (tdq->tdq_ridx != tdq->tdq_idx &&
+	| 			    pri == tdq->tdq_ridx)
+	| 				pri = (unsigned char)(pri - 1) % RQ_NQS;
+	| 		} else
+	| 			pri = tdq->tdq_ridx;
+	| 		runq_add_pri(ts->ts_runq, td, pri, flags);
+	| static void
+	| tdq_load_add(struct tdq *tdq, struct thread *td)
+	| {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	tdq->tdq_load++;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload++;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	tdq->tdq_load++;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload++;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| 	 * target cpu.
+	| 	 */
+	| 	cpu = sched_pickcpu(td, flags);
+	| 	tdq = sched_setcpu(td, cpu, flags);
+	| 	tdq_add(tdq, td, flags);
+	| 	if (cpu != PCPU_GET(cpuid)) {
+	| 	 * to the scheduler's lock.
+	| 	 */
+	| 	thread_lock_set(td, TDQ_LOCKPTR(tdq));
+	| 	tdq_add(tdq, td, flags);
+	| #endif
+	| 	if (!(flags & SRQ_YIELDING))
+	| {
+	| 	struct thread *ctd;
+	| 	int cpri;
+	| 	int pri;
+	| 
+	| 	THREAD_LOCK_ASSERT(curthread, MA_OWNED);
+	| 
+	| 	ctd = curthread;
+	| 	pri = td->td_priority;
+	| 	cpri = ctd->td_priority;
+	| 	int pri;
+	| 
+	| 	THREAD_LOCK_ASSERT(curthread, MA_OWNED);
+	| 
+	| 	ctd = curthread;
+	| 	pri = td->td_priority;
+	| 	cpri = ctd->td_priority;
+	| 	if (pri < cpri)
+	| 		ctd->td_flags |= TDF_NEEDRESCHED;
+	| 	if (panicstr != NULL || pri >= cpri || cold || TD_IS_INHIBITED(ctd))
+	| 	if (pri >= cpri)
+	| 		return (0);
+	| 	/*
+	| 	 * Always preempt idle.
+	| 	 */
+	| 	if (cpri >= PRI_MIN_IDLE)
+	| 		return (1);
+	| 	/*
+	| 	 * If preemption is disabled don't preempt others.
+	| 	 */
+	| 	if (preempt_thresh == 0)
+	| 		ctd->td_flags |= TDF_NEEDRESCHED;
+	| 	if (panicstr != NULL || pri >= cpri || cold || TD_IS_INHIBITED(ctd))
+	| 		return;
+	| 	if (!sched_shouldpreempt(pri, cpri, 0))
+	| 		return;
+	| 	ctd->td_owepreempt = 1;
+	| 	 */
+	| 	cpu = sched_pickcpu(td, flags);
+	| 	tdq = sched_setcpu(td, cpu, flags);
+	| 	tdq_add(tdq, td, flags);
+	| 	if (cpu != PCPU_GET(cpuid)) {
+	| 		tdq_notify(tdq, td);
+14.29%	| 	thread_lock_set(td, TDQ_LOCKPTR(tdq));
+	| 	tdq_add(tdq, td, flags);
+	| #endif
+	| 	if (!(flags & SRQ_YIELDING))
+	| 		sched_setpreempt(td);
+	| }
+
+Profile trace for function: ixgbe_mq_start_locked() [0.99%]
+	| 	return (0);
+	| }
+	| 
+	| static int
+	| ixgbe_mq_start_locked(struct ifnet *ifp, struct tx_ring *txr)
+	| {
+	| 	struct adapter  *adapter = txr->adapter;
+	|         struct mbuf     *next;
+	|         int             enqueued = 0, err = 0;
+	| 
+	| 	if (((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0) ||
+	| }
+	| 
+	| static int
+	| ixgbe_mq_start_locked(struct ifnet *ifp, struct tx_ring *txr)
+	| {
+	| 	struct adapter  *adapter = txr->adapter;
+	|         struct mbuf     *next;
+	|         int             enqueued = 0, err = 0;
+	| 
+	| 	if (((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0) ||
+	| 	while (next != NULL) {
+	| 		if ((err = ixgbe_xmit(txr, &next)) != 0) {
+	| 			if (next != NULL)
+	| 				err = drbr_enqueue(ifp, txr->br, next);
+	| #else
+	| 	while ((next = drbr_peek(ifp, txr->br)) != NULL) {
+28.57%	| 	 * I believe it is safe to not have a memory barrier
+	| 	 * here because we control cons and tail is worst case
+	| 	 * a lagging indicator so we worst case we might
+	| 	 * return NULL immediately after a buffer has been enqueued
+	| 	 */
+	| 	if (br->br_cons_head == br->br_prod_tail)
+28.57%	| 		return (NULL);
+	| 	
+	| 	return (br->br_ring[br->br_cons_head]);
+	| 		if ((err = ixgbe_xmit(txr, &next)) != 0) {
+	| 			}
+	| #endif
+	| 			break;
+	| 		}
+	| #if __FreeBSD_version >= 901504
+	| 		drbr_advance(ifp, txr->br);
+42.86%	| buf_ring_advance_sc(struct buf_ring *br)
+	| {
+	| 	uint32_t cons_head, cons_next;
+	| 	uint32_t prod_tail;
+	| 	
+	| 	cons_head = br->br_cons_head;
+	| 	prod_tail = br->br_prod_tail;
+	| 	
+	| 	cons_next = (cons_head + 1) & br->br_cons_mask;
+	| 	if (cons_head == prod_tail) 
+	| 		return;
+	| 	br->br_cons_head = cons_next;
+	| #ifdef DEBUG_BUFRING
+	| 	br->br_ring[cons_head] = NULL;
+	| #endif
+	| 	br->br_cons_tail = cons_next;
+	| #endif
+	| 		enqueued++;
+	| 		/* Send a copy of the frame to the BPF listener */
+	| 		ETHER_BPF_MTAP(ifp, next);
+	| 
+	| static __inline int
+	| bpf_peers_present(struct bpf_if *bpf)
+	| {
+	| 
+	| 	if (!LIST_EMPTY(&bpf->bif_dlist))
+	| 			break;
+	| 		}
+	| #if __FreeBSD_version >= 901504
+	| 		drbr_advance(ifp, txr->br);
+	| #endif
+	| 		enqueued++;
+	| 		/* Send a copy of the frame to the BPF listener */
+	| 		ETHER_BPF_MTAP(ifp, next);
+	| 		if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
+	| 	while (next != NULL) {
+	| 		if ((err = ixgbe_xmit(txr, &next)) != 0) {
+	| 			if (next != NULL)
+	| 				err = drbr_enqueue(ifp, txr->br, next);
+	| #else
+	| 	while ((next = drbr_peek(ifp, txr->br)) != NULL) {
+	| 		if ((err = ixgbe_xmit(txr, &next)) != 0) {
+	| 			if (next == NULL) {
+	| 				drbr_advance(ifp, txr->br);
+	| static __inline void
+	| buf_ring_putback_sc(struct buf_ring *br, void *new)
+	| {
+	| 	KASSERT(br->br_cons_head != br->br_prod_tail, 
+	| 		("Buf-Ring has none in putback")) ;
+	| 	br->br_ring[br->br_cons_head] = new;
+	| buf_ring_advance_sc(struct buf_ring *br)
+	| {
+	| 	uint32_t cons_head, cons_next;
+	| 	uint32_t prod_tail;
+	| 	
+	| 	cons_head = br->br_cons_head;
+	| 	prod_tail = br->br_prod_tail;
+	| 	
+	| 	cons_next = (cons_head + 1) & br->br_cons_mask;
+	| 	if (cons_head == prod_tail) 
+	| 		return;
+	| 	br->br_cons_head = cons_next;
+	| #ifdef DEBUG_BUFRING
+	| 	br->br_ring[cons_head] = NULL;
+	| #endif
+	| 	br->br_cons_tail = cons_next;
+	| #if __FreeBSD_version < 901504
+	| 		next = drbr_dequeue(ifp, txr->br);
+	| #endif
+	| 	}
+	| 
+	| 	if (enqueued > 0) {
+	| 		/* Set watchdog on */
+	| 		txr->queue_status = IXGBE_QUEUE_WORKING;
+	| 		txr->watchdog_time = ticks;
+	| 	}
+	| 
+	| 	if (txr->tx_avail < IXGBE_TX_CLEANUP_THRESHOLD)
+	| 		ixgbe_txeof(txr);
+
+Profile trace for function: sleepq_lock() [0.99%]
+	| /*
+	|  * Lock the sleep queue chain associated with the specified wait channel.
+	|  */
+	| void
+	| sleepq_lock(void *wchan)
+	| {
+14.29%	| 	struct sleepqueue_chain *sc;
+	| 
+	| 	sc = SC_LOOKUP(wchan);
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	mtx_lock_spin(&sc->sc_lock);
+85.71%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| }
+	| sleepq_lock(void *wchan)
+	| {
+	| 	struct sleepqueue_chain *sc;
+	| 
+	| 	sc = SC_LOOKUP(wchan);
+	| 	mtx_lock_spin(&sc->sc_lock);
+
+Profile trace for function: cpu_search_highest() [0.85%]
+	| 	return cpu_search(cg, low, NULL, CPU_SEARCH_LOWEST);
+	| }
+	| 
+	| int
+	| cpu_search_highest(const struct cpu_group *cg, struct cpu_search *high)
+	| {
+	| 	struct cpu_group *child;
+	| 	struct tdq *tdq;
+	| 	int cpu, i, hload, lload, load, total, rnd, *rndptr;
+	| 
+	| 	total = 0;
+	| 	cpumask = cg->cg_mask;
+	| 		lload = INT_MAX;
+	| 		lgroup = *low;
+	| 	}
+	| 	if (match & CPU_SEARCH_HIGHEST) {
+	| 		hload = INT_MIN;
+	| 		hgroup = *high;
+	| 	}
+	| 
+	| 	/* Iterate through the child CPU groups and then remaining CPUs. */
+	| 	for (i = cg->cg_children, cpu = mp_maxid; ; ) {
+	| 		if (i == 0) {
+	| #ifdef HAVE_INLINE_FFSL
+	| 			cpu = CPU_FFS(&cpumask) - 1;
+	| static __inline u_long
+	| bsfq(u_long mask)
+	| {
+	| 	u_long	result;
+	| 
+	| 	__asm __volatile("bsfq %1,%0" : "=r" (result) : "rm" (mask));
+	| #define	HAVE_INLINE_FFSL
+	| 
+	| static __inline int
+	| ffsl(long mask)
+	| {
+	| 	return (mask == 0 ? mask : (int)bsfq((u_long)mask) + 1);
+	| 			child = &cg->cg_child[i - 1];
+	| 
+	| 		if (match & CPU_SEARCH_LOWEST)
+	| 			lgroup.cs_cpu = -1;
+	| 		if (match & CPU_SEARCH_HIGHEST)
+	| 			hgroup.cs_cpu = -1;
+	| #endif
+	| 			if (cpu < 0)
+	| 				break;
+	| 			child = NULL;
+	| 		} else
+	| 			child = &cg->cg_child[i - 1];
+	| 
+	| 		if (match & CPU_SEARCH_LOWEST)
+	| 			lgroup.cs_cpu = -1;
+	| 		if (match & CPU_SEARCH_HIGHEST)
+	| 			hgroup.cs_cpu = -1;
+	| 		if (child) {			/* Handle child CPU group. */
+	| 			case CPU_SEARCH_BOTH:
+	| 				load = cpu_search_both(child, &lgroup, &hgroup);
+	| 				break;
+	| 			}
+	| 		} else {			/* Handle child CPU. */
+	| 			CPU_CLR(cpu, &cpumask);
+100.00%	| 			tdq = TDQ_CPU(cpu);
+	| 			load = tdq->tdq_load * 256;
+	| 			rndptr = DPCPU_PTR(randomval);
+	| 			rnd = (*rndptr = *rndptr * 69069 + 5) >> 26;
+	| 					lgroup.cs_cpu = cpu;
+	| 					lgroup.cs_load = load - rnd;
+	| 				}
+	| 			}
+	| 			if (match & CPU_SEARCH_HIGHEST)
+	| 				if (tdq->tdq_load >= hgroup.cs_limit &&
+	| 		if (match & CPU_SEARCH_LOWEST)
+	| 			lgroup.cs_cpu = -1;
+	| 		if (match & CPU_SEARCH_HIGHEST)
+	| 			hgroup.cs_cpu = -1;
+	| 		if (child) {			/* Handle child CPU group. */
+	| 			CPU_NAND(&cpumask, &child->cg_mask);
+	| 			switch (match) {
+	| 			case CPU_SEARCH_LOWEST:
+	| 				load = cpu_search_lowest(child, &lgroup);
+	| 				break;
+	| 			case CPU_SEARCH_HIGHEST:
+	| 				load = cpu_search_highest(child, &hgroup);
+	| 				low->cs_cpu = lgroup.cs_cpu;
+	| 				low->cs_load = lgroup.cs_load;
+	| 			}
+	| 		}
+	| 		if (match & CPU_SEARCH_HIGHEST)
+	| 			if (hgroup.cs_cpu >= 0 &&
+	| 					lgroup.cs_cpu = cpu;
+	| 					lgroup.cs_load = load - rnd;
+	| 				}
+	| 			}
+	| 			if (match & CPU_SEARCH_HIGHEST)
+	| 				if (tdq->tdq_load >= hgroup.cs_limit &&
+	| 		} else {			/* Handle child CPU. */
+	| 			CPU_CLR(cpu, &cpumask);
+	| 			tdq = TDQ_CPU(cpu);
+	| 			load = tdq->tdq_load * 256;
+	| 			rndptr = DPCPU_PTR(randomval);
+	| 			rnd = (*rndptr = *rndptr * 69069 + 5) >> 26;
+	| 			}
+	| 			if (match & CPU_SEARCH_HIGHEST)
+	| 				if (tdq->tdq_load >= hgroup.cs_limit &&
+	| 				    tdq->tdq_transferable &&
+	| 				    CPU_ISSET(cpu, &hgroup.cs_mask)) {
+	| 					hgroup.cs_cpu = cpu;
+	| 					hgroup.cs_load = load - rnd;
+	| 				low->cs_cpu = lgroup.cs_cpu;
+	| 				low->cs_load = lgroup.cs_load;
+	| 			}
+	| 		}
+	| 		if (match & CPU_SEARCH_HIGHEST)
+	| 			if (hgroup.cs_cpu >= 0 &&
+	| 			    (load > hload ||
+	| 			     (load == hload && hgroup.cs_load > high->cs_load))) {
+	| 				hload = load;
+	| 				high->cs_cpu = hgroup.cs_cpu;
+	| 				high->cs_load = hgroup.cs_load;
+	| 				low->cs_cpu = lgroup.cs_cpu;
+	| 				low->cs_load = lgroup.cs_load;
+	| 			}
+	| 		}
+	| 		if (match & CPU_SEARCH_HIGHEST)
+	| 			if (hgroup.cs_cpu >= 0 &&
+	| 			    (load > hload ||
+	| 			     (load == hload && hgroup.cs_load > high->cs_load))) {
+	| 				hload = load;
+	| 				high->cs_cpu = hgroup.cs_cpu;
+	| 				high->cs_load = hgroup.cs_load;
+	| 				    CPU_ISSET(cpu, &hgroup.cs_mask)) {
+	| 					hgroup.cs_cpu = cpu;
+	| 					hgroup.cs_load = load - rnd;
+	| 				}
+	| 		}
+	| 		total += load;
+	| 			     (load == hload && hgroup.cs_load > high->cs_load))) {
+	| 				hload = load;
+	| 				high->cs_cpu = hgroup.cs_cpu;
+	| 				high->cs_load = hgroup.cs_load;
+	| 			}
+	| 		if (child) {
+	| 			i--;
+	| 			if (i == 0 && CPU_EMPTY(&cpumask))
+	| }
+	| 
+	| int
+	| cpu_search_highest(const struct cpu_group *cg, struct cpu_search *high)
+	| {
+	| 	return cpu_search(cg, NULL, high, CPU_SEARCH_HIGHEST);
+
+Profile trace for function: uma_zone_exhausted_nolock() [0.85%]
+100.00%	| 	return (full);	
+	| }
+	| 
+	| int
+	| uma_zone_exhausted_nolock(uma_zone_t zone)
+	| {
+	| 	return (zone->uz_flags & UMA_ZFLAG_FULL);
+
+Profile trace for function: cpu_idle() [0.71%]
+	| 
+	| void (*cpu_idle_fn)(sbintime_t) = cpu_idle_acpi;
+	| 
+	| void
+	| cpu_idle(int busy)
+	| {
+	| 	    busy, curcpu);
+	| #ifdef MP_WATCHDOG
+	| 	ap_watchdog(PCPU_GET(cpuid));
+	| #endif
+	| 	/* If we are busy - try to use fast methods. */
+	| 	if (busy) {
+	| 		if ((cpu_feature2 & CPUID2_MON) && idle_mwait) {
+	| static void
+	| cpu_idle_mwait(sbintime_t sbt)
+	| {
+	| 	int *state;
+	| 
+	| 	state = (int *)PCPU_PTR(monitorbuf);
+	| 	*state = STATE_MWAIT;
+	| }
+	| 
+	| static __inline void
+	| disable_intr(void)
+	| {
+	| 	__asm __volatile("cli" : : : "memory");
+	| 
+	| 	/* See comments in cpu_idle_hlt(). */
+	| 	disable_intr();
+	| 	if (sched_runnable()) {
+	| }
+	| 
+	| static __inline void
+	| enable_intr(void)
+	| {
+	| 	__asm __volatile("sti");
+	| 		}
+	| 	}
+	| 
+	| 	/* If we have time - switch timers into idle mode. */
+	| 	if (!busy) {
+	| 		critical_enter();
+	| 		sbt = cpu_idleclock();
+	| 	}
+	| 
+	| 	/* Apply AMD APIC timer C1E workaround. */
+	| 	if (cpu_ident_amdc1e && cpu_disable_deep_sleep) {
+	| static __inline uint64_t
+	| rdmsr(u_int msr)
+	| {
+	| 	uint32_t low, high;
+	| 
+	| 	__asm __volatile("rdmsr" : "=a" (low), "=d" (high) : "c" (msr));
+	| 		msr = rdmsr(MSR_AMDK8_IPM);
+	| 		if (msr & AMDK8_CMPHALT)
+	| 			wrmsr(MSR_AMDK8_IPM, msr & ~AMDK8_CMPHALT);
+	| {
+	| 	uint32_t low, high;
+	| 
+	| 	low = newval;
+	| 	high = newval >> 32;
+	| 	__asm __volatile("wrmsr" : : "a" (low), "d" (high), "c" (msr));
+	| 	}
+	| 
+	| 	/* Call main idle method. */
+	| 	cpu_idle_fn(sbt);
+	| 
+	| 	/* Switch timers back into active mode. */
+	| 	if (!busy) {
+	| 		cpu_activeclock();
+	| 		critical_exit();
+	| 
+	| static __inline void
+	| cpu_monitor(const void *addr, u_long extensions, u_int hints)
+	| {
+	| 
+	| 	__asm __volatile("monitor"
+100.00%	| 		enable_intr();
+	| 		*state = STATE_RUNNING;
+	| 		return;
+	| 	}
+	| 	cpu_monitor(state, 0, 0);
+	| 	if (*state == STATE_MWAIT)
+	| 		__asm __volatile("sti; mwait" : : "a" (MWAIT_C1), "c" (0));
+	| }
+	| 
+	| static __inline void
+	| enable_intr(void)
+	| {
+	| 	__asm __volatile("sti");
+	| 
+	| 	/* See comments in cpu_idle_hlt(). */
+	| 	disable_intr();
+	| 	if (sched_runnable()) {
+	| 		enable_intr();
+	| 		*state = STATE_RUNNING;
+	| 		critical_exit();
+	| 	}
+	| out:
+	| 	CTR2(KTR_SPARE2, "cpu_idle(%d) at %d done",
+	| 	    busy, curcpu);
+	| }
+
+Profile trace for function: tdq_notify() [0.71%]
+	| /*
+	|  * Notify a remote cpu of new work.  Sends an IPI if criteria are met.
+	|  */
+	| static void
+	| tdq_notify(struct tdq *tdq, struct thread *td)
+	| {
+	| 	struct thread *ctd;
+	| 	int pri;
+	| 	int cpu;
+	| 
+	| 	if (tdq->tdq_ipipending)
+	| 		return;
+	| 	cpu = td->td_sched->ts_cpu;
+	| 	pri = td->td_priority;
+	| 	ctd = pcpu_find(cpu)->pc_curthread;
+60.00%	| 	if (!sched_shouldpreempt(pri, ctd->td_priority, 1))
+40.00%	| 	int cpu;
+	| 
+	| 	if (tdq->tdq_ipipending)
+	| 		return;
+	| 	cpu = td->td_sched->ts_cpu;
+	| 	pri = td->td_priority;
+	| 	if (pri >= cpri)
+	| 		return (0);
+	| 	/*
+	| 	 * Always preempt idle.
+	| 	 */
+	| 	if (cpri >= PRI_MIN_IDLE)
+	| 		return (1);
+	| 	/*
+	| 	 * If preemption is disabled don't preempt others.
+	| 	 */
+	| 	if (preempt_thresh == 0)
+	| 		return (0);
+	| 	/*
+	| 	 * Preempt if we exceed the threshold.
+	| 	 */
+	| 	if (pri <= preempt_thresh)
+	| 	cpu = td->td_sched->ts_cpu;
+	| 	pri = td->td_priority;
+	| 	ctd = pcpu_find(cpu)->pc_curthread;
+	| 	if (!sched_shouldpreempt(pri, ctd->td_priority, 1))
+	| 		return;
+	| 	if (TD_IS_IDLETHREAD(ctd)) {
+	| 		/*
+	| 		 * If the MD code has an idle wakeup routine try that before
+	| 		 * falling back to IPI.
+	| 		 */
+	| 		if (!tdq->tdq_cpu_idle || cpu_idle_wakeup(cpu))
+	| 			return;
+	| 	}
+	| 	tdq->tdq_ipipending = 1;
+	| 	ipi_cpu(cpu, IPI_PREEMPT);
+	| }
+	| 		 * falling back to IPI.
+	| 		 */
+	| 		if (!tdq->tdq_cpu_idle || cpu_idle_wakeup(cpu))
+	| 			return;
+	| 	}
+	| 	tdq->tdq_ipipending = 1;
+	| 	ipi_cpu(cpu, IPI_PREEMPT);
+
+Profile trace for function: ixgbe_deferred_mq_start() [0.71%]
+	| /*
+	|  * Called from a taskqueue to drain queued transmit packets.
+	|  */
+	| static void
+	| ixgbe_deferred_mq_start(void *arg, int pending)
+	| {
+	| 	struct tx_ring *txr = arg;
+	| 	struct adapter *adapter = txr->adapter;
+	| 	struct ifnet *ifp = adapter->ifp;
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 
+	| 	IXGBE_TX_LOCK(txr);
+40.00%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	if (!drbr_empty(ifp, txr->br))
+60.00%	| 
+	| static __inline int
+	| buf_ring_empty(struct buf_ring *br)
+	| {
+	| 
+	| 	return (br->br_cons_head == br->br_prod_tail);
+	| 		ixgbe_mq_start_locked(ifp, txr);
+	| 	IXGBE_TX_UNLOCK(txr);
+	| }
+	| 	struct ifnet *ifp = adapter->ifp;
+	| 
+	| 	IXGBE_TX_LOCK(txr);
+	| 	if (!drbr_empty(ifp, txr->br))
+	| 		ixgbe_mq_start_locked(ifp, txr);
+	| 	IXGBE_TX_UNLOCK(txr);
+
+Profile trace for function: sched_switch() [0.71%]
+	|  * migrating a thread from one queue to another as running threads may
+	|  * be assigned elsewhere via binding.
+	|  */
+	| void
+	| sched_switch(struct thread *td, struct thread *newtd, int flags)
+	| {
+	| 	struct td_sched *ts;
+	| 	struct mtx *mtx;
+	| 	int srqflag;
+	| 	int cpuid, preempted;
+	| 
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	KASSERT(newtd == NULL, ("sched_switch: Unsupported newtd argument"));
+	| 
+	| 	cpuid = PCPU_GET(cpuid);
+	| 	tdq = TDQ_CPU(cpuid);
+	| 	ts = td->td_sched;
+	| 	mtx = td->td_lock;
+	|  * mechanism since it happens with less regular and frequent events.
+	|  */
+	| static void
+	| sched_pctcpu_update(struct td_sched *ts, int run)
+	| {
+	| 	int t = ticks;
+	| 
+	| 	if (t - ts->ts_ltick >= SCHED_TICK_TARG) {
+	| 		ts->ts_ticks = 0;
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	} else if (t - ts->ts_ftick >= SCHED_TICK_MAX) {
+	| 		ts->ts_ticks = (ts->ts_ticks / (ts->ts_ltick - ts->ts_ftick)) *
+	| 		    (ts->ts_ltick - (t - SCHED_TICK_TARG));
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	}
+	| 	if (run)
+	| 		ts->ts_ticks += (t - ts->ts_ltick) << SCHED_TICK_SHIFT;
+	| 	int t = ticks;
+	| 
+	| 	if (t - ts->ts_ltick >= SCHED_TICK_TARG) {
+	| 		ts->ts_ticks = 0;
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	} else if (t - ts->ts_ftick >= SCHED_TICK_MAX) {
+	| 		ts->ts_ticks = (ts->ts_ticks / (ts->ts_ltick - ts->ts_ftick)) *
+	| 		    (ts->ts_ltick - (t - SCHED_TICK_TARG));
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| sched_pctcpu_update(struct td_sched *ts, int run)
+	| {
+	| 	int t = ticks;
+	| 
+	| 	if (t - ts->ts_ltick >= SCHED_TICK_TARG) {
+	| 		ts->ts_ticks = 0;
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 		ts->ts_ticks = (ts->ts_ticks / (ts->ts_ltick - ts->ts_ftick)) *
+	| 		    (ts->ts_ltick - (t - SCHED_TICK_TARG));
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	}
+	| 	if (run)
+	| 		ts->ts_ticks += (t - ts->ts_ltick) << SCHED_TICK_SHIFT;
+	| 	ts->ts_ltick = t;
+	| 	cpuid = PCPU_GET(cpuid);
+	| 	tdq = TDQ_CPU(cpuid);
+	| 	ts = td->td_sched;
+	| 	mtx = td->td_lock;
+	| 	sched_pctcpu_update(ts, 1);
+	| 	ts->ts_rltick = ticks;
+	| 	td->td_lastcpu = td->td_oncpu;
+	| 	td->td_oncpu = NOCPU;
+	| 	preempted = !(td->td_flags & TDF_SLICEEND);
+	| 	td->td_flags &= ~(TDF_NEEDRESCHED | TDF_SLICEEND);
+	| 	td->td_owepreempt = 0;
+	| 	if (!TD_IS_IDLETHREAD(td))
+	| 		tdq->tdq_switchcnt++;
+	| 	/*
+	| 	 * The lock pointer in an idle thread should never change.  Reset it
+	| 	 * to CAN_RUN as well.
+	| 	 */
+	| 	if (TD_IS_IDLETHREAD(td)) {
+	| 		MPASS(td->td_lock == TDQ_LOCKPTR(tdq));
+	| 		TD_SET_CAN_RUN(td);
+	| 	 * We enter here with the thread blocked and assigned to the
+	| 	 * appropriate cpu run-queue or sleep-queue and with the current
+	| 	 * thread-queue locked.
+	| 	 */
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED | MA_NOTRECURSED);
+	| 	newtd = choosethread();
+	| 	/*
+	| 	 * Call the MD code to switch contexts if necessary.
+	| 	 */
+	| 	if (td != newtd) {
+	| #ifdef	HWPMC_HOOKS
+	| 		if (PMC_PROC_IS_USING_PMCS(td->td_proc))
+	| 			PMC_SWITCH_CONTEXT(td, PMC_FN_CSW_OUT);
+	| #endif
+	| 		SDT_PROBE2(sched, , , off__cpu, newtd, newtd->td_proc);
+	| 		lock_profile_release_lock(&TDQ_LOCKPTR(tdq)->lock_object);
+	| 		TDQ_LOCKPTR(tdq)->mtx_lock = (uintptr_t)newtd;
+	| 		sched_pctcpu_update(newtd->td_sched, 0);
+	|  * mechanism since it happens with less regular and frequent events.
+	|  */
+	| static void
+	| sched_pctcpu_update(struct td_sched *ts, int run)
+	| {
+	| 	int t = ticks;
+80.00%	| 
+	| 	if (t - ts->ts_ltick >= SCHED_TICK_TARG) {
+	| 		ts->ts_ticks = 0;
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	} else if (t - ts->ts_ftick >= SCHED_TICK_MAX) {
+	| 		ts->ts_ticks = (ts->ts_ticks / (ts->ts_ltick - ts->ts_ftick)) *
+	| 	 * to CAN_RUN as well.
+	| 	 */
+	| 	if (TD_IS_IDLETHREAD(td)) {
+	| 		MPASS(td->td_lock == TDQ_LOCKPTR(tdq));
+	| 		TD_SET_CAN_RUN(td);
+	| 	} else if (TD_IS_RUNNING(td)) {
+	| 		MPASS(td->td_lock == TDQ_LOCKPTR(tdq));
+	| 		srqflag = preempted ?
+	| 		    SRQ_OURSELF|SRQ_YIELDING|SRQ_PREEMPTED :
+	| 		    SRQ_OURSELF|SRQ_YIELDING;
+	| #ifdef SMP
+	| 		if (THREAD_CAN_MIGRATE(td) && !THREAD_CAN_SCHED(td, ts->ts_cpu))
+	| 			ts->ts_cpu = sched_pickcpu(td, 0);
+	| #endif
+	| 		if (ts->ts_cpu == cpuid)
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 		if (PMC_PROC_IS_USING_PMCS(td->td_proc))
+	| 			PMC_SWITCH_CONTEXT(td, PMC_FN_CSW_IN);
+	| #endif
+	| 	} else {
+	| 		thread_unblock_switch(td, mtx);
+	| 		SDT_PROBE0(sched, , , remain__cpu);
+	| sched_pctcpu_update(struct td_sched *ts, int run)
+	| {
+	| 	int t = ticks;
+	| 
+	| 	if (t - ts->ts_ltick >= SCHED_TICK_TARG) {
+	| 		ts->ts_ticks = 0;
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	} else if (t - ts->ts_ftick >= SCHED_TICK_MAX) {
+	| 		ts->ts_ticks = (ts->ts_ticks / (ts->ts_ltick - ts->ts_ftick)) *
+	| 		    (ts->ts_ltick - (t - SCHED_TICK_TARG));
+	| 		ts->ts_ftick = t - SCHED_TICK_TARG;
+	| 	}
+	| 	if (run)
+	| 		ts->ts_ticks += (t - ts->ts_ltick) << SCHED_TICK_SHIFT;
+	| 	ts->ts_ltick = t;
+	| 		/*
+	| 		 * If DTrace has set the active vtime enum to anything
+	| 		 * other than INACTIVE (0), then it should have set the
+	| 		 * function to call.
+	| 		 */
+	| 		if (dtrace_vtime_active)
+	| 			(*dtrace_vtime_switch_func)(newtd);
+	| #endif
+	| 
+	| 		cpu_switch(td, newtd, mtx);
+	| 		/*
+	| 		 * We may return from cpu_switch on a different cpu.  However,
+	| 		 * we always return with td_lock pointing to the current cpu's
+	| 		 * run queue lock.
+	| 		 */
+	| 		cpuid = PCPU_GET(cpuid);
+	| 		tdq = TDQ_CPU(cpuid);
+	| 		lock_profile_obtain_lock_success(
+	| 		    &TDQ_LOCKPTR(tdq)->lock_object, 0, 0, __FILE__, __LINE__);
+	| 
+	| 		SDT_PROBE0(sched, , , on__cpu);
+	| #ifdef	HWPMC_HOOKS
+	| 		if (PMC_PROC_IS_USING_PMCS(td->td_proc))
+	| 			PMC_SWITCH_CONTEXT(td, PMC_FN_CSW_IN);
+	| 	/*
+	| 	 * Assert that all went well and return.
+	| 	 */
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED|MA_NOTRECURSED);
+	| 	MPASS(td->td_lock == TDQ_LOCKPTR(tdq));
+	| 	td->td_oncpu = cpuid;
+	| }
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 			    ("Thread %p shouldn't migrate", td));
+	| 			mtx = sched_switch_migrate(tdq, td, srqflag);
+	| 		}
+	| 	} else {
+	| 		/* This thread must be going to sleep. */
+	| 		TDQ_LOCK(tdq);
+20.00%	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 		MPASS(td->td_lock == TDQ_LOCKPTR(tdq));
+	| 		srqflag = preempted ?
+	| 		    SRQ_OURSELF|SRQ_YIELDING|SRQ_PREEMPTED :
+	| 		    SRQ_OURSELF|SRQ_YIELDING;
+	| #ifdef SMP
+	| 		if (THREAD_CAN_MIGRATE(td) && !THREAD_CAN_SCHED(td, ts->ts_cpu))
+	| 			ts->ts_cpu = sched_pickcpu(td, 0);
+	| #endif
+	| 		if (ts->ts_cpu == cpuid)
+	| {
+	| 	struct td_sched *ts;
+	| 	u_char pri;
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TD_SET_RUNQ(td);
+	| 	if (THREAD_CAN_MIGRATE(td)) {
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	pri = td->td_priority;
+	| 	ts = td->td_sched;
+	| 	TD_SET_RUNQ(td);
+	| 	if (THREAD_CAN_MIGRATE(td)) {
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_realtime;
+	| static struct mtx *
+	| sched_switch_migrate(struct tdq *tdq, struct thread *td, int flags)
+	| {
+	| 	struct tdq *tdn;
+	| 
+	| 	tdn = TDQ_CPU(td->td_sched->ts_cpu);
+	|  */
+	| static void
+	| tdq_load_rem(struct tdq *tdq, struct thread *td)
+	| {
+	| 
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	KASSERT(tdq->tdq_load != 0,
+	| 	    ("tdq_load_rem: Removing with 0 load on queue %d", TDQ_ID(tdq)));
+	| 
+	| 	tdq->tdq_load--;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload--;
+	| static struct mtx *
+	| sched_switch_migrate(struct tdq *tdq, struct thread *td, int flags)
+	| {
+	| 	struct tdq *tdn;
+	| 
+	| 	tdn = TDQ_CPU(td->td_sched->ts_cpu);
+	| 
+	| 	tdq->tdq_load--;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload--;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	KASSERT(tdq->tdq_load != 0,
+	| 	    ("tdq_load_rem: Removing with 0 load on queue %d", TDQ_ID(tdq)));
+	| 
+	| 	tdq->tdq_load--;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload--;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| 	/*
+	| 	 * Do the lock dance required to avoid LOR.  We grab an extra
+	| 	 * spinlock nesting to prevent preemption while we're
+	| 	 * not holding either run-queue lock.
+	| 	 */
+	| 	spinlock_enter();
+	| 	thread_lock_block(td);	/* This releases the lock on tdq. */
+	| 	 * blocked lock on the run-queue of a remote processor.  The deadlock
+	| 	 * occurs when a third processor attempts to lock the two queues in
+	| 	 * question while the target processor is spinning with its own
+	| 	 * run-queue lock held while waiting for the blocked lock to clear.
+	| 	 */
+	| 	tdq_lock_pair(tdn, tdq);
+	| 	KASSERT((TD_CAN_RUN(td) || TD_IS_RUNNING(td)),
+	| 	    ("sched_add: bad thread state"));
+	| 	KASSERT(td->td_flags & TDF_INMEM,
+	| 	    ("sched_add: thread swapped out"));
+	| 
+	| 	if (td->td_priority < tdq->tdq_lowpri)
+	| 		tdq->tdq_lowpri = td->td_priority;
+	| {
+	| 	struct td_sched *ts;
+	| 	u_char pri;
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TD_SET_RUNQ(td);
+	| 	if (THREAD_CAN_MIGRATE(td)) {
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	pri = td->td_priority;
+	| 	ts = td->td_sched;
+	| 	TD_SET_RUNQ(td);
+	| 	if (THREAD_CAN_MIGRATE(td)) {
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_realtime;
+	| 			    ("Thread %p shouldn't migrate", td));
+	| 			mtx = sched_switch_migrate(tdq, td, srqflag);
+	| 		}
+	| 	} else {
+	| 		/* This thread must be going to sleep. */
+	| 		TDQ_LOCK(tdq);
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_realtime;
+	| 	} else if (pri <= PRI_MAX_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_timeshare;
+	| 			("Invalid priority %d on timeshare runq", pri));
+	| 		/*
+	| 		 * This queue contains only priorities between MIN and MAX
+	| 		 * realtime.  Use the whole queue to represent these values.
+	| 		 */
+	| 		if ((flags & (SRQ_BORROWING|SRQ_PREEMPTED)) == 0) {
+	| 			pri = RQ_NQS * (pri - PRI_MIN_BATCH) / PRI_BATCH_RANGE;
+	| 			pri = (pri + tdq->tdq_idx) % RQ_NQS;
+	| 			/*
+	| 			 * This effectively shortens the queue by one so we
+	| 			 * can have a one slot difference between idx and
+	| 			 * ridx while we wait for threads to drain.
+	| 			 */
+	| 			if (tdq->tdq_ridx != tdq->tdq_idx &&
+	| 			    pri == tdq->tdq_ridx)
+	| 				pri = (unsigned char)(pri - 1) % RQ_NQS;
+	| 		tdq->tdq_transferable++;
+	| 		ts->ts_flags |= TSF_XFERABLE;
+	| 	}
+	| 	if (pri < PRI_MIN_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_realtime;
+	| 	} else if (pri <= PRI_MAX_BATCH) {
+	| 		ts->ts_runq = &tdq->tdq_timeshare;
+	| 			("Invalid priority %d on timeshare runq", pri));
+	| 		/*
+	| 		 * This queue contains only priorities between MIN and MAX
+	| 		 * realtime.  Use the whole queue to represent these values.
+	| 		 */
+	| 		if ((flags & (SRQ_BORROWING|SRQ_PREEMPTED)) == 0) {
+	| 			pri = RQ_NQS * (pri - PRI_MIN_BATCH) / PRI_BATCH_RANGE;
+	| 			pri = (pri + tdq->tdq_idx) % RQ_NQS;
+	| 			/*
+	| 			 * This effectively shortens the queue by one so we
+	| 			 * can have a one slot difference between idx and
+	| 			 * ridx while we wait for threads to drain.
+	| 			 */
+	| 			if (tdq->tdq_ridx != tdq->tdq_idx &&
+	| 			    pri == tdq->tdq_ridx)
+	| 				pri = (unsigned char)(pri - 1) % RQ_NQS;
+	| 			    ("Thread %p shouldn't migrate", td));
+	| 			mtx = sched_switch_migrate(tdq, td, srqflag);
+	| 		}
+	| 	} else {
+	| 		/* This thread must be going to sleep. */
+	| 		TDQ_LOCK(tdq);
+	| 		mtx = thread_lock_block(td);
+	|  */
+	| static void
+	| tdq_load_rem(struct tdq *tdq, struct thread *td)
+	| {
+	| 
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	KASSERT(tdq->tdq_load != 0,
+	| 	    ("tdq_load_rem: Removing with 0 load on queue %d", TDQ_ID(tdq)));
+	| 
+	| 	tdq->tdq_load--;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload--;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	KASSERT(tdq->tdq_load != 0,
+	| 	    ("tdq_load_rem: Removing with 0 load on queue %d", TDQ_ID(tdq)));
+	| 
+	| 	tdq->tdq_load--;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload--;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| 		} else
+	| 			pri = tdq->tdq_ridx;
+	| 		runq_add_pri(ts->ts_runq, td, pri, flags);
+	| 		return;
+	| 	} else
+	| 		ts->ts_runq = &tdq->tdq_idle;
+	| 	runq_add(ts->ts_runq, td, flags);
+	| 		} else
+	| 			pri = tdq->tdq_ridx;
+	| 		runq_add_pri(ts->ts_runq, td, pri, flags);
+	| 		return;
+	| 	} else
+	| 		ts->ts_runq = &tdq->tdq_idle;
+	| 	runq_add(ts->ts_runq, td, flags);
+	| 			 */
+	| 			if (tdq->tdq_ridx != tdq->tdq_idx &&
+	| 			    pri == tdq->tdq_ridx)
+	| 				pri = (unsigned char)(pri - 1) % RQ_NQS;
+	| 		} else
+	| 			pri = tdq->tdq_ridx;
+	| 		runq_add_pri(ts->ts_runq, td, pri, flags);
+	| 			 */
+	| 			if (tdq->tdq_ridx != tdq->tdq_idx &&
+	| 			    pri == tdq->tdq_ridx)
+	| 				pri = (unsigned char)(pri - 1) % RQ_NQS;
+	| 		} else
+	| 			pri = tdq->tdq_ridx;
+	| 		runq_add_pri(ts->ts_runq, td, pri, flags);
+	| static void
+	| tdq_load_add(struct tdq *tdq, struct thread *td)
+	| {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	tdq->tdq_load++;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload++;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| {
+	| 
+	| 	TDQ_LOCK_ASSERT(tdq, MA_OWNED);
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 
+	| 	tdq->tdq_load++;
+	| 	if ((td->td_flags & TDF_NOLOAD) == 0)
+	| 		tdq->tdq_sysload++;
+	| 	KTR_COUNTER0(KTR_SCHED, "load", tdq->tdq_loadname, tdq->tdq_load);
+	| 	SDT_PROBE2(sched, , , load__change, (int)TDQ_ID(tdq), tdq->tdq_load);
+	| 	 * question while the target processor is spinning with its own
+	| 	 * run-queue lock held while waiting for the blocked lock to clear.
+	| 	 */
+	| 	tdq_lock_pair(tdn, tdq);
+	| 	tdq_add(tdn, td, flags);
+	| 	tdq_notify(tdn, td);
+	| 	TDQ_UNLOCK(tdn);
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 	spinlock_exit();
+
+Profile trace for function: setrunnable() [0.56%]
+	|  * it is in memory.  If it is swapped out, return true so our caller
+	|  * will know to awaken the swapper.
+	|  */
+	| int
+	| setrunnable(struct thread *td)
+	| {
+	| 
+	| 	THREAD_LOCK_ASSERT(td, MA_OWNED);
+	| 	KASSERT(td->td_proc->p_state != PRS_ZOMBIE,
+	| 	    ("setrunnable: pid %d is a zombie", td->td_proc->p_pid));
+	| 	switch (td->td_state) {
+	| 	case TDS_INHIBITED:
+	| 		/*
+	| 		 * If we are only inhibited because we are swapped out
+	| 		 * then arange to swap in this process. Otherwise just return.
+	| 		 */
+	| 		if (td->td_inhibitors != TDI_SWAPPED)
+100.00%	| 		break;
+	| 	default:
+	| 		printf("state is 0x%x", td->td_state);
+	| 		panic("setrunnable(2)");
+	| 	}
+	| 	if ((td->td_flags & TDF_INMEM) == 0) {
+	| 		if ((td->td_flags & TDF_SWAPINREQ) == 0) {
+	| 			td->td_flags |= TDF_SWAPINREQ;
+	| 			return (1);
+	| 		}
+	| 	} else
+	| 		sched_wakeup(td);
+	| 	default:
+	| 		printf("state is 0x%x", td->td_state);
+	| 		panic("setrunnable(2)");
+	| 	}
+	| 	if ((td->td_flags & TDF_INMEM) == 0) {
+	| 		if ((td->td_flags & TDF_SWAPINREQ) == 0) {
+	| 			td->td_flags |= TDF_SWAPINREQ;
+	| 			return (1);
+	| 		}
+	| 	} else
+	| 		sched_wakeup(td);
+	| 	return (0);
+	| }
+	| 			return (0);
+	| 		/* FALLTHROUGH */
+	| 	case TDS_CAN_RUN:
+	| 		break;
+	| 	default:
+	| 		printf("state is 0x%x", td->td_state);
+	| 		panic("setrunnable(2)");
+
+Profile trace for function: msleep_spin_sbt() [0.56%]
+	| }
+	| 
+	| int
+	| msleep_spin_sbt(void *ident, struct mtx *mtx, const char *wmesg,
+	|     sbintime_t sbt, sbintime_t pr, int flags)
+	| {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	p = td->td_proc;
+	| 	KASSERT(mtx != NULL, ("sleeping without a mutex"));
+	| 	KASSERT(p != NULL, ("msleep1"));
+	| 	KASSERT(ident != NULL && TD_IS_RUNNING(td), ("msleep"));
+	| 
+	| 	if (cold || SCHEDULER_STOPPED()) {
+	| 		 * no way to give interrupts a chance now.
+	| 		 */
+	| 		return (0);
+	| 	}
+	| 
+	| 	sleepq_lock(ident);
+	| 	CTR5(KTR_PROC, "msleep_spin: thread %ld (pid %ld, %s) on %s (%p)",
+	| 	    td->td_tid, p->p_pid, td->td_name, wmesg, ident);
+	| 
+	| 	DROP_GIANT();
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+	| 	mtx_assert(mtx, MA_OWNED | MA_NOTRECURSED);
+	| 	WITNESS_SAVE(&mtx->lock_object, mtx);
+	| 	mtx_unlock_spin(mtx);
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 
+	| 	/*
+	| 	 * We put ourselves on the sleep queue and start our timeout.
+	| 	 */
+	| 	sleepq_add(ident, &mtx->lock_object, wmesg, SLEEPQ_SLEEP, 0);
+	| 	if (sbt != 0)
+	| 		sleepq_set_timeout_sbt(ident, sbt, pr, flags);
+	| 	 * any spin lock.  Thus, we have to drop the sleepq spin lock while
+	| 	 * we handle those requests.  This is safe since we have placed our
+	| 	 * thread on the sleep queue already.
+	| 	 */
+	| #ifdef KTRACE
+	| 	if (KTRPOINT(td, KTR_CSW)) {
+	| 		sleepq_release(ident);
+	| 		ktrcsw(1, 0, wmesg);
+	| 		sleepq_lock(ident);
+	| 	sleepq_release(ident);
+	| 	WITNESS_WARN(WARN_GIANTOK | WARN_SLEEPOK, NULL, "Sleeping on \"%s\"",
+	| 	    wmesg);
+	| 	sleepq_lock(ident);
+	| #endif
+	| 	if (sbt != 0)
+	| 		rval = sleepq_timedwait(ident, 0);
+	| 	else {
+	| 		sleepq_wait(ident, 0);
+	| 		rval = 0;
+	| 	}
+	| #ifdef KTRACE
+	| 	if (KTRPOINT(td, KTR_CSW))
+	| 		ktrcsw(0, 0, wmesg);
+	| #endif
+	| 	PICKUP_GIANT();
+	| static __inline int
+	| atomic_cmpset_long(volatile u_long *dst, u_long expect, u_long src)
+	| {
+	| 	u_char res;
+	| 
+	| 	__asm __volatile(
+100.00%	| 	mtx_lock_spin(mtx);
+	| 	WITNESS_RESTORE(&mtx->lock_object, mtx);
+	| 	return (rval);
+	| }
+
+Profile trace for function: sched_pickcpu() [0.56%]
+	| SCHED_STAT_DEFINE(pickcpu_local, "Migrated to current cpu");
+	| SCHED_STAT_DEFINE(pickcpu_migration, "Selection may have caused migration");
+	| 
+	| static int
+	| sched_pickcpu(struct thread *td, int flags)
+	| {
+	| 	struct td_sched *ts;
+	| 	struct tdq *tdq;
+	| 	cpuset_t mask;
+	| 	int cpu, pri, self;
+	| 
+	| 	self = PCPU_GET(cpuid);
+	| 	ts = td->td_sched;
+	| 	if (smp_started == 0)
+	| 		return (self);
+	| 	/*
+	| 	 * Don't migrate a running thread from sched_switch().
+	| 	 */
+	| 	if ((flags & SRQ_OURSELF) || !THREAD_CAN_MIGRATE(td))
+	| 		return (ts->ts_cpu);
+	| 		cpu = sched_lowest(cpu_top, mask, -1, INT_MAX, ts->ts_cpu);
+	| 	KASSERT(cpu != -1, ("sched_pickcpu: Failed to find a cpu."));
+	| 	/*
+	| 	 * Compare the lowest loaded cpu to current cpu.
+	| 	 */
+	| 	if (THREAD_CAN_SCHED(td, self) && TDQ_CPU(self)->tdq_lowpri > pri &&
+	| 		return (ts->ts_cpu);
+	| 	/*
+	| 	 * Prefer to run interrupt threads on the processors that generate
+	| 	 * the interrupt.
+	| 	 */
+	| 	pri = td->td_priority;
+	| 	if (td->td_priority <= PRI_MAX_ITHD && THREAD_CAN_SCHED(td, self) &&
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	    curthread->td_intr_nesting_level && ts->ts_cpu != self) {
+	| 		SCHED_STAT_INC(pickcpu_intrbind);
+	| 		ts->ts_cpu = self;
+	| 		if (TDQ_CPU(self)->tdq_lowpri > pri) {
+	| 			SCHED_STAT_INC(pickcpu_affinity);
+	| 			return (ts->ts_cpu);
+	| 	}
+	| 	/*
+	| 	 * If the thread can run on the last cpu and the affinity has not
+	| 	 * expired or it is idle run it there.
+	| 	 */
+	| 	tdq = TDQ_CPU(ts->ts_cpu);
+75.00%	| 	cg = tdq->tdq_cg;
+25.00%	| 	if (THREAD_CAN_SCHED(td, ts->ts_cpu) &&
+	| 	    tdq->tdq_lowpri >= PRI_MIN_IDLE &&
+	| 	    SCHED_AFFINITY(ts, CG_SHARE_L2)) {
+	| 		if (cg->cg_flags & CG_FLAG_THREAD) {
+	| 			CPUSET_FOREACH(cpu, cg->cg_mask) {
+	| 				if (TDQ_CPU(cpu)->tdq_lowpri < PRI_MIN_IDLE)
+	| 	cg = tdq->tdq_cg;
+	| 	if (THREAD_CAN_SCHED(td, ts->ts_cpu) &&
+	| 	    tdq->tdq_lowpri >= PRI_MIN_IDLE &&
+	| 	    SCHED_AFFINITY(ts, CG_SHARE_L2)) {
+	| 		if (cg->cg_flags & CG_FLAG_THREAD) {
+	| 			CPUSET_FOREACH(cpu, cg->cg_mask) {
+	| 				if (TDQ_CPU(cpu)->tdq_lowpri < PRI_MIN_IDLE)
+	| 					break;
+	| 			}
+	| 		} else
+	| 			cpu = INT_MAX;
+	| 		if (cpu > mp_maxid) {
+	| 			SCHED_STAT_INC(pickcpu_idle_affinity);
+	| 			return (ts->ts_cpu);
+	| 	/*
+	| 	 * Search for the last level cache CPU group in the tree.
+	| 	 * Skip caches with expired affinity time and SMT groups.
+	| 	 * Affinity to higher level caches will be handled less aggressively.
+	| 	 */
+	| 	for (ccg = NULL; cg != NULL; cg = cg->cg_parent) {
+	| 		if (cg->cg_flags & CG_FLAG_THREAD)
+	| 			continue;
+	| 		if (!SCHED_AFFINITY(ts, cg->cg_level))
+	| 	 * Search for the last level cache CPU group in the tree.
+	| 	 * Skip caches with expired affinity time and SMT groups.
+	| 	 * Affinity to higher level caches will be handled less aggressively.
+	| 	 */
+	| 	for (ccg = NULL; cg != NULL; cg = cg->cg_parent) {
+	| 		if (cg->cg_flags & CG_FLAG_THREAD)
+	| 			continue;
+	| 		if (!SCHED_AFFINITY(ts, cg->cg_level))
+	| 	/*
+	| 	 * Search for the last level cache CPU group in the tree.
+	| 	 * Skip caches with expired affinity time and SMT groups.
+	| 	 * Affinity to higher level caches will be handled less aggressively.
+	| 	 */
+	| 	for (ccg = NULL; cg != NULL; cg = cg->cg_parent) {
+	| 			continue;
+	| 		if (!SCHED_AFFINITY(ts, cg->cg_level))
+	| 			continue;
+	| 		ccg = cg;
+	| 	}
+	| 	if (ccg != NULL)
+	| 		cg = ccg;
+	| 	cpu = -1;
+	| 	/* Search the group for the less loaded idle CPU we can run now. */
+	| 	mask = td->td_cpuset->cs_mask;
+	| 	if (cg != NULL && cg != cpu_top &&
+	| 	    CPU_CMP(&cg->cg_mask, &cpu_top->cg_mask) != 0)
+	| 
+	| static __inline int imax(int a, int b) { return (a > b ? a : b); }
+	| static __inline int imin(int a, int b) { return (a < b ? a : b); }
+	| static __inline long lmax(long a, long b) { return (a > b ? a : b); }
+	| static __inline long lmin(long a, long b) { return (a < b ? a : b); }
+	| static __inline u_int max(u_int a, u_int b) { return (a > b ? a : b); }
+	| 		cpu = sched_lowest(cg, mask, max(pri, PRI_MAX_TIMESHARE),
+	| sched_lowest(const struct cpu_group *cg, cpuset_t mask, int pri, int maxload,
+	|     int prefer)
+	| {
+	| 	struct cpu_search low;
+	| 
+	| 	low.cs_cpu = -1;
+	| 	low.cs_prefer = prefer;
+	| 	low.cs_mask = mask;
+	| 	low.cs_pri = pri;
+	| 	low.cs_limit = maxload;
+	| 	cpu_search_lowest(cg, &low);
+	| 	return low.cs_cpu;
+	| 	    CPU_CMP(&cg->cg_mask, &cpu_top->cg_mask) != 0)
+	| 		cpu = sched_lowest(cg, mask, max(pri, PRI_MAX_TIMESHARE),
+	| 		    INT_MAX, ts->ts_cpu);
+	| 	/* Search globally for the less loaded CPU we can run now. */
+	| 	if (cpu == -1)
+	| 		cpu = sched_lowest(cpu_top, mask, pri, INT_MAX, ts->ts_cpu);
+	| sched_lowest(const struct cpu_group *cg, cpuset_t mask, int pri, int maxload,
+	|     int prefer)
+	| {
+	| 	struct cpu_search low;
+	| 
+	| 	low.cs_cpu = -1;
+	| 	low.cs_prefer = prefer;
+	| 	low.cs_mask = mask;
+	| 	low.cs_pri = pri;
+	| 	low.cs_limit = maxload;
+	| 	cpu_search_lowest(cg, &low);
+	| 	return low.cs_cpu;
+	| 	/* Search globally for the less loaded CPU we can run now. */
+	| 	if (cpu == -1)
+	| 		cpu = sched_lowest(cpu_top, mask, pri, INT_MAX, ts->ts_cpu);
+	| 	/* Search globally for the less loaded CPU. */
+	| 	if (cpu == -1)
+	| 		cpu = sched_lowest(cpu_top, mask, -1, INT_MAX, ts->ts_cpu);
+	| sched_lowest(const struct cpu_group *cg, cpuset_t mask, int pri, int maxload,
+	|     int prefer)
+	| {
+	| 	struct cpu_search low;
+	| 
+	| 	low.cs_cpu = -1;
+	| 	low.cs_prefer = prefer;
+	| 	low.cs_mask = mask;
+	| 	low.cs_pri = pri;
+	| 	low.cs_limit = maxload;
+	| 	cpu_search_lowest(cg, &low);
+	| 	return low.cs_cpu;
+	| 		cpu = sched_lowest(cpu_top, mask, -1, INT_MAX, ts->ts_cpu);
+	| 	KASSERT(cpu != -1, ("sched_pickcpu: Failed to find a cpu."));
+	| 	/*
+	| 	 * Compare the lowest loaded cpu to current cpu.
+	| 	 */
+	| 	if (THREAD_CAN_SCHED(td, self) && TDQ_CPU(self)->tdq_lowpri > pri &&
+
+Profile trace for function: sleepq_add() [0.56%]
+	|  * woken up.
+	|  */
+	| void
+	| sleepq_add(void *wchan, struct lock_object *lock, const char *wmesg, int flags,
+	|     int queue)
+	| {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| {
+	| 	struct sleepqueue_chain *sc;
+	| 	struct sleepqueue *sq;
+	| 
+	| 	KASSERT(wchan != NULL, ("%s: invalid NULL wait channel", __func__));
+	| 	sc = SC_LOOKUP(wchan);
+75.00%	| 	mtx_assert(&sc->sc_lock, MA_OWNED);
+	| 	LIST_FOREACH(sq, &sc->sc_queues, sq_hash)
+	| 		if (sq->sq_wchan == wchan)
+25.00%	| 	struct sleepqueue *sq;
+	| 
+	| 	KASSERT(wchan != NULL, ("%s: invalid NULL wait channel", __func__));
+	| 	sc = SC_LOOKUP(wchan);
+	| 	mtx_assert(&sc->sc_lock, MA_OWNED);
+	| 	LIST_FOREACH(sq, &sc->sc_queues, sq_hash)
+	| 			sc->sc_max_depth = sc->sc_depth;
+	| 			if (sc->sc_max_depth > sleepq_max_depth)
+	| 				sleepq_max_depth = sc->sc_max_depth;
+	| 		}
+	| #endif
+	| 		sq = td->td_sleepqueue;
+	| 		LIST_INSERT_HEAD(&sc->sc_queues, sq, sq_hash);
+	| 			sc->sc_max_depth = sc->sc_depth;
+	| 			if (sc->sc_max_depth > sleepq_max_depth)
+	| 				sleepq_max_depth = sc->sc_max_depth;
+	| 		}
+	| #endif
+	| 		sq = td->td_sleepqueue;
+	| 		LIST_INSERT_HEAD(&sc->sc_queues, sq, sq_hash);
+	| 		sq->sq_wchan = wchan;
+	| 		sq->sq_type = flags & SLEEPQ_TYPE;
+	| 	} else {
+	| 		MPASS(wchan == sq->sq_wchan);
+	| 		MPASS(lock == sq->sq_lock);
+	| 		MPASS((flags & SLEEPQ_TYPE) == sq->sq_type);
+	| 		LIST_INSERT_HEAD(&sq->sq_free, td->td_sleepqueue, sq_hash);
+	| 	}
+	| 	thread_lock(td);
+	| 	TAILQ_INSERT_TAIL(&sq->sq_blocked[queue], td, td_slpq);
+	| 	sq->sq_blockedcnt[queue]++;
+	| 	td->td_sleepqueue = NULL;
+	| 	td->td_sqqueue = queue;
+	| 	td->td_wchan = wchan;
+	| 	td->td_wmesg = wmesg;
+	| 	if (flags & SLEEPQ_INTERRUPTIBLE) {
+	| 		td->td_flags |= TDF_SINTR;
+	| 		td->td_flags &= ~TDF_SLEEPABORT;
+	| 	}
+	| 	thread_unlock(td);
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+
+Profile trace for function: m_freem() [0.56%]
+75.00%	|  * Free an entire chain of mbufs and associated external buffers, if
+	|  * applicable.
+	|  */
+	| void
+	| m_freem(struct mbuf *mb)
+	| {
+	| 	struct mbuf *n = m->m_next;
+	| 
+	| 	if ((m->m_flags & (M_PKTHDR|M_NOFREE)) == (M_PKTHDR|M_NOFREE))
+	| 		m_tag_delete_chain(m, NULL);
+	| 	if (m->m_flags & M_EXT)
+	| 		mb_free_ext(m);
+	| }
+	| 
+	| static __inline struct mbuf *
+	| m_free(struct mbuf *m)
+	| {
+	| 	struct mbuf *n = m->m_next;
+25.00%	| 
+	| 	if ((m->m_flags & (M_PKTHDR|M_NOFREE)) == (M_PKTHDR|M_NOFREE))
+	| 		m_tag_delete_chain(m, NULL);
+	| 	if (m->m_flags & M_EXT)
+	| 		mb_free_ext(m);
+	| 	else if ((m->m_flags & M_NOFREE) == 0)
+	| 		uma_zfree(zone_mbuf, m);
+	| static __inline void uma_zfree(uma_zone_t zone, void *item);
+	| 
+	| static __inline void
+	| uma_zfree(uma_zone_t zone, void *item)
+	| {
+	| 	uma_zfree_arg(zone, item, NULL);
+	| 
+	| 	while (mb != NULL)
+	| 		mb = m_free(mb);
+	| }
+
+Profile trace for function: sched_idletd() [0.42%]
+	| /*
+	|  * The actual idle process.
+	|  */
+	| void
+	| sched_idletd(void *dummy)
+	| {
+	| static __inline __pure2 struct thread *
+	| __curthread(void)
+	| {
+	| 	struct thread *td;
+	| 
+	| 	__asm("movq %%gs:%1,%0" : "=r" (td)
+	| 	int oldswitchcnt, switchcnt;
+	| 	int i;
+	| 
+	| 	mtx_assert(&Giant, MA_NOTOWNED);
+	| 	td = curthread;
+	| 	tdq = TDQ_SELF();
+	| 	THREAD_NO_SLEEPING();
+	| 	oldswitchcnt = -1;
+	| 	for (;;) {
+	| 		if (tdq->tdq_load) {
+	| 			thread_lock(td);
+	| 			mi_switch(SW_VOL | SWT_IDLE, NULL);
+	| 			thread_unlock(td);
+	| 		}
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 		 * for load rather than entering a low power state that 
+	| 		 * may require an IPI.  However, don't do any busy
+	| 		 * loops while on SMT machines as this simply steals
+	| 		 * cycles from cores doing useful work.
+	| 		 */
+	| 		if (TDQ_IDLESPIN(tdq) && switchcnt > sched_idlespinthresh) {
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 		if (tdq->tdq_load != 0 || switchcnt != oldswitchcnt)
+	| 			continue;
+	| 
+	| 		/* Run main MD idle handler. */
+	| 		tdq->tdq_cpu_idle = 1;
+	| 		 * other wakeup reasons equal to context switches.
+	| 		 */
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 		if (switchcnt != oldswitchcnt)
+	| 			continue;
+	| 		tdq->tdq_switchcnt++;
+	| 		oldswitchcnt++;
+	| 	td = curthread;
+	| 	tdq = TDQ_SELF();
+	| 	THREAD_NO_SLEEPING();
+	| 	oldswitchcnt = -1;
+	| 	for (;;) {
+	| 		if (tdq->tdq_load) {
+	| 			thread_lock(td);
+	| 			mi_switch(SW_VOL | SWT_IDLE, NULL);
+	| 			thread_unlock(td);
+	| ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+	| 
+	| ATOMIC_STORE(char);
+	| ATOMIC_STORE(short);
+	| ATOMIC_STORE(int);
+	| ATOMIC_STORE(long);
+	| 		}
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 	struct tdq *steal;
+	| 	cpuset_t mask;
+	| 	int thresh;
+	| 	int cpu;
+	| 
+	| 	if (smp_started == 0 || steal_idle == 0)
+	| 		 * for load rather than entering a low power state that 
+	| 		 * may require an IPI.  However, don't do any busy
+	| 		 * loops while on SMT machines as this simply steals
+	| 		 * cycles from cores doing useful work.
+	| 		 */
+	| 		if (TDQ_IDLESPIN(tdq) && switchcnt > sched_idlespinthresh) {
+	| 		if (switchcnt != oldswitchcnt) {
+	| 			oldswitchcnt = switchcnt;
+	| 			if (tdq_idled(tdq) == 0)
+	| 				continue;
+	| 		}
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 		 * may require an IPI.  However, don't do any busy
+	| 		 * loops while on SMT machines as this simply steals
+	| 		 * cycles from cores doing useful work.
+	| 		 */
+	| 		if (TDQ_IDLESPIN(tdq) && switchcnt > sched_idlespinthresh) {
+	| 			for (i = 0; i < sched_idlespins; i++) {
+	| 				if (tdq->tdq_load)
+	| }
+	| 
+	| static __inline void
+	| ia32_pause(void)
+	| {
+	| 	__asm __volatile("pause");
+	| 		 * may require an IPI.  However, don't do any busy
+	| 		 * loops while on SMT machines as this simply steals
+	| 		 * cycles from cores doing useful work.
+	| 		 */
+	| 		if (TDQ_IDLESPIN(tdq) && switchcnt > sched_idlespinthresh) {
+	| 			for (i = 0; i < sched_idlespins; i++) {
+	| 				cpu_spinwait();
+	| 			}
+	| 		}
+	| 
+	| 		/* If there was context switch during spin, restart it. */
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 		if (tdq->tdq_load != 0 || switchcnt != oldswitchcnt)
+	| 				cpu_spinwait();
+	| 			}
+	| 		}
+	| 
+	| 		/* If there was context switch during spin, restart it. */
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 		if (tdq->tdq_load != 0 || switchcnt != oldswitchcnt)
+	| 			continue;
+	| 
+	| 		/* Run main MD idle handler. */
+	| 		tdq->tdq_cpu_idle = 1;
+	| 		cpu_idle(switchcnt * 4 > sched_idlespinthresh);
+33.33%	| 		tdq->tdq_cpu_idle = 0;
+66.67%	| 
+	| 		/*
+	| 		 * Account thread-less hardware interrupts and
+	| 		 * other wakeup reasons equal to context switches.
+	| 		 */
+	| 		switchcnt = tdq->tdq_switchcnt + tdq->tdq_oldswitchcnt;
+	| 	struct tdq *steal;
+	| 	cpuset_t mask;
+	| 	int thresh;
+	| 	int cpu;
+	| 
+	| 	if (smp_started == 0 || steal_idle == 0)
+	| 		return (1);
+	| 	CPU_FILL(&mask);
+	| 	CPU_CLR(PCPU_GET(cpuid), &mask);
+	| 	/* We don't want to be preempted while we're iterating. */
+	| 	spinlock_enter();
+	| 	for (cg = tdq->tdq_cg; cg != NULL; ) {
+	| 	int cpu;
+	| 
+	| 	if (smp_started == 0 || steal_idle == 0)
+	| 		return (1);
+	| 	CPU_FILL(&mask);
+	| 	CPU_CLR(PCPU_GET(cpuid), &mask);
+	| 	/* We don't want to be preempted while we're iterating. */
+	| 	spinlock_enter();
+	| 	for (cg = tdq->tdq_cg; cg != NULL; ) {
+	| 		if ((cg->cg_flags & CG_FLAG_THREAD) == 0)
+	| 		 * steal one here.  If we fail to acquire one due to affinity
+	| 		 * restrictions loop again with this cpu removed from the
+	| 		 * set.
+	| 		 */
+	| 		if (tdq->tdq_load == 0 && tdq_move(steal, tdq) == 0) {
+	| 			tdq_unlock_pair(tdq, steal);
+	| 	CPU_FILL(&mask);
+	| 	CPU_CLR(PCPU_GET(cpuid), &mask);
+	| 	/* We don't want to be preempted while we're iterating. */
+	| 	spinlock_enter();
+	| 	for (cg = tdq->tdq_cg; cg != NULL; ) {
+	| 		if ((cg->cg_flags & CG_FLAG_THREAD) == 0)
+	| 			thresh = steal_thresh;
+	| 	CPU_FILL(&mask);
+	| 	CPU_CLR(PCPU_GET(cpuid), &mask);
+	| 	/* We don't want to be preempted while we're iterating. */
+	| 	spinlock_enter();
+	| 	for (cg = tdq->tdq_cg; cg != NULL; ) {
+	| 		if ((cg->cg_flags & CG_FLAG_THREAD) == 0)
+	| static inline int
+	| sched_highest(const struct cpu_group *cg, cpuset_t mask, int minload)
+	| {
+	| 	struct cpu_search high;
+	| 
+	| 	high.cs_cpu = -1;
+	| 	high.cs_mask = mask;
+	| 	high.cs_limit = minload;
+	| 	cpu_search_highest(cg, &high);
+	| 	return high.cs_cpu;
+	| 		cpu = sched_highest(cg, mask, thresh);
+	| 		if (cpu == -1) {
+	| 			cg = cg->cg_parent;
+	| 			continue;
+	| 		}
+	| 		steal = TDQ_CPU(cpu);
+	| 		CPU_CLR(cpu, &mask);
+	| 		tdq_lock_pair(tdq, steal);
+	| 		if (steal->tdq_load < thresh || steal->tdq_transferable == 0) {
+	| 			tdq_unlock_pair(tdq, steal);
+	| 		 * If a thread was added while interrupts were disabled don't
+	| 		 * steal one here.  If we fail to acquire one due to affinity
+	| 		 * restrictions loop again with this cpu removed from the
+	| 		 * set.
+	| 		 */
+	| 		if (tdq->tdq_load == 0 && tdq_move(steal, tdq) == 0) {
+	| 			tdq_unlock_pair(tdq, steal);
+	| 			thresh = steal_thresh;
+	| 		else
+	| 			thresh = 1;
+	| 		cpu = sched_highest(cg, mask, thresh);
+	| 		if (cpu == -1) {
+	| 			cg = cg->cg_parent;
+	| 		mi_switch(SW_VOL | SWT_IDLE, NULL);
+	| 		thread_unlock(curthread);
+	| 
+	| 		return (0);
+	| 	}
+	| 	spinlock_exit();
+	| 		 */
+	| 		if (tdq->tdq_load == 0 && tdq_move(steal, tdq) == 0) {
+	| 			tdq_unlock_pair(tdq, steal);
+	| 			continue;
+	| 		}
+	| 		spinlock_exit();
+	| 		TDQ_UNLOCK(steal);
+	| 		mi_switch(SW_VOL | SWT_IDLE, NULL);
+	| 		thread_unlock(curthread);
+
+Profile trace for function: cpu_switch() [0.42%]
+	|  * %rsi = newtd
+	|  * %rdx = mtx
+	|  */
+	| ENTRY(cpu_switch)
+	| 	/* Switch to new thread.  First, save context. */
+	| 	movq	TD_PCB(%rdi),%r8
+	| 	orl	$PCB_FULL_IRET,PCB_FLAGS(%r8)
+	| 
+	| 	movq	(%rsp),%rax			/* Hardware registers */
+	| 	movq	%r15,PCB_R15(%r8)
+	| 	movq	%r14,PCB_R14(%r8)
+	| 	movq	%r13,PCB_R13(%r8)
+	| 	movq	%r12,PCB_R12(%r8)
+	| 	movq	%rbp,PCB_RBP(%r8)
+	| 	movq	%rsp,PCB_RSP(%r8)
+	| 	movq	%rbx,PCB_RBX(%r8)
+33.33%	| 	movq	%rax,PCB_RIP(%r8)
+	| 
+	| 	testl	$PCB_DBREGS,PCB_FLAGS(%r8)
+	| 	jnz	store_dr			/* static predict not taken */
+
