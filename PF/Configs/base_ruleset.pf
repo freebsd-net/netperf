@@ -1,0 +1,174 @@
+set optimization normal
+set timeout { adaptive.start 0, adaptive.end 0 }
+set limit states 22000
+set limit src-nodes 22000
+
+#System aliases
+  
+loopback = "{ lo0 }"
+WAN = "{ em0 }"
+LAN = "{ em1 }"
+OPT1 = "{ em2 }"
+IPsec = "{ enc0 }"
+
+#SSH Lockout Table
+table <sshlockout> persist
+table <webConfiguratorlockout> persist
+#Snort tables
+table <snort2c>
+table <virusprot>
+table <bogons> persist file "/etc/bogons"
+table <vpn_networks> { 192.168.200.0/24 192.168.212.0/24 10.10.10.0/24 192.168.120.0/24 192.168.210.0/24 10.10.10.0/24 }
+table <negate_networks> { 192.168.200.0/24 192.168.212.0/24 10.10.10.0/24 192.168.120.0/24 192.168.210.0/24 10.10.10.0/24 }
+
+# User Aliases 
+table <test> {   10.10.10.0/25 } 
+test = "<test>"
+ 
+# Gateways
+GWOPT1GW = " route-to ( em2 192.168.210.20 ) "
+GWWAN_DHCP = " route-to ( em0 192.168.10.1 ) "
+GWWAN_DHCP6 = " route-to ( em0 192.168.10.1 ) "
+
+ 
+set loginterface em1
+
+set skip on pfsync0
+
+scrub on $WAN all    fragment reassemble
+scrub on $LAN all    fragment reassemble
+scrub on $OPT1 all    fragment reassemble
+
+
+no nat proto carp
+no rdr proto carp
+nat-anchor "natearly/*"
+nat-anchor "natrules/*"
+
+binat on enc0 from 192.168.1.0/24 to 192.168.120.0/24 -> 10.10.10.0/24
+
+# Outbound NAT rules (automatic)
+
+# Subnets to NAT 
+tonatsubnets	= "{ 127.0.0.0/8 192.168.1.0/24 10.10.200.0/24 }"
+nat on $WAN  from $tonatsubnets to any port 500 -> 192.168.10.72/32  static-port
+nat on $WAN  from $tonatsubnets to any -> 192.168.10.72/32 port 1024:65535  
+nat on $OPT1  from $tonatsubnets to any port 500 -> 192.168.210.1/32  static-port
+nat on $OPT1  from $tonatsubnets to any -> 192.168.210.1/32 port 1024:65535  
+
+# Load balancing anchor
+rdr-anchor "relayd/*"
+# TFTP proxy
+rdr-anchor "tftp-proxy/*"
+# NAT Inbound Redirects
+rdr on em1 proto tcp from any to any port 443 -> 127.0.0.1 port 8080
+no nat on em1 proto tcp from (em1) to 192.168.1.0/24
+nat on em1 proto tcp from 192.168.1.0/24 to 127.0.0.1 port 443 -> (em1)
+
+rdr on em2 proto tcp from any to 192.168.210.1 port 53 -> 192.168.1.100
+# UPnPd rdr anchor
+rdr-anchor "miniupnpd"
+
+anchor "relayd/*"
+anchor "openvpn/*"
+anchor "ipsec/*"
+# block IPv4 link-local. Per RFC 3927, link local "MUST NOT" be forwarded by a routing device,
+# and clients "MUST NOT" send such packets to a router. FreeBSD won't route 169.254./16, but
+# route-to can override that, causing problems such as in redmine #2073
+block in log quick from 169.254.0.0/16 to any
+block in log quick from any to 169.254.0.0/16 
+#---------------------------------------------------------------------------
+# default deny rules
+#---------------------------------------------------------------------------
+block in log inet all tracker 1000000101 label "Default deny rule IPv4"
+block out log inet all tracker 1000000102 label "Default deny rule IPv4"
+block in log inet6 all tracker 1000000103 label "Default deny rule IPv6"
+block out log inet6 all tracker 1000000104 label "Default deny rule IPv6"
+
+# IPv6 ICMP is not auxilary, it is required for operation
+# See man icmp6(4)
+# 1    unreach         Destination unreachable
+# 2    toobig          Packet too big
+# 128  echoreq         Echo service request
+# 129  echorep         Echo service reply
+# 133  routersol       Router solicitation
+# 134  routeradv       Router advertisement
+# 135  neighbrsol      Neighbor solicitation
+# 136  neighbradv      Neighbor advertisement
+pass  quick inet6 proto ipv6-icmp from any to any icmp6-type {1,2,135,136} tracker 1000000105 keep state
+
+# Allow only bare essential icmpv6 packets (NS, NA, and RA, echoreq, echorep)
+pass out  quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type {129,133,134,135,136} tracker 1000000106 keep state
+pass out  quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type {129,133,134,135,136} tracker 1000000107 keep state
+pass in  quick inet6 proto ipv6-icmp from fe80::/10 to fe80::/10 icmp6-type {128,133,134,135,136} tracker 1000000108 keep state
+pass in  quick inet6 proto ipv6-icmp from ff02::/16 to fe80::/10 icmp6-type {128,133,134,135,136} tracker 1000000109 keep state
+pass in  quick inet6 proto ipv6-icmp from fe80::/10 to ff02::/16 icmp6-type {128,133,134,135,136} tracker 1000000110 keep state
+
+# We use the mighty pf, we cannot be fooled.
+block log quick inet proto { tcp, udp } from any port = 0 to any tracker 1000000111
+block log quick inet proto { tcp, udp } from any to any port = 0 tracker 1000000112
+block log quick inet6 proto { tcp, udp } from any port = 0 to any tracker 1000000113
+block log quick inet6 proto { tcp, udp } from any to any port = 0 tracker 1000000114
+
+# Snort package
+block log quick from <snort2c> to any tracker 1000000115 label "Block snort2c hosts"
+block log quick from any to <snort2c> tracker 1000000116 label "Block snort2c hosts"
+block in log quick proto carp from (self) to any tracker 1000000201
+pass  quick proto carp tracker 1000000202
+
+# SSH lockout
+block in log quick proto tcp from <sshlockout> to (self) port 22 tracker 1000000301 label "sshlockout"
+
+# webConfigurator lockout
+block in log quick proto tcp from <webConfiguratorlockout> to (self) port 443 tracker 1000000351 label "webConfiguratorlockout"
+block in log quick from <virusprot> to any tracker 1000000400 label "virusprot overload table"
+# allow our DHCPv6 client out to the WAN
+pass in  quick on $WAN proto udp from fe80::/10 port = 546 to fe80::/10 port = 546 tracker 1000001561 label "allow dhcpv6 client in WAN"
+pass in  quick on $WAN proto udp from any port = 547 to any port = 546 tracker 1000001562 label "allow dhcpv6 client in WAN"
+pass out  quick on $WAN proto udp from any port = 546 to any port = 547 tracker 1000001563 label "allow dhcpv6 client out WAN"
+antispoof log for $WAN tracker 1000001570
+# allow our DHCP client out to the WAN
+pass in  on $WAN proto udp from any port = 67 to any port = 68 tracker 1000001591 label "allow dhcp client out WAN"
+pass out  on $WAN proto udp from any port = 68 to any port = 67 tracker 1000001592 label "allow dhcp client out WAN"
+# Not installing DHCP server firewall rules for WAN which is configured for DHCP.
+antispoof log for $LAN tracker 1000002620
+# allow access to DHCP server on LAN
+pass in  quick on $LAN proto udp from any port = 68 to 255.255.255.255 port = 67 tracker 1000002641 label "allow access to DHCP server"
+pass in  quick on $LAN proto udp from any port = 68 to 192.168.1.1 port = 67 tracker 1000002642 label "allow access to DHCP server"
+pass out  quick on $LAN proto udp from 192.168.1.1 port = 67 to any port = 68 tracker 1000002643 label "allow access to DHCP server"
+antispoof log for $OPT1 tracker 1000003670
+
+# loopback
+pass in  on $loopback inet all tracker 1000004761 label "pass IPv4 loopback"
+pass out  on $loopback inet all tracker 1000004762 label "pass IPv4 loopback"
+pass in  on $loopback inet6 all tracker 1000004763 label "pass IPv6 loopback"
+pass out  on $loopback inet6 all tracker 1000004764 label "pass IPv6 loopback"
+# let out anything from the firewall host itself and decrypted IPsec traffic
+pass out  inet all keep state allow-opts tracker 1000004765 label "let out anything IPv4 from firewall host itself"
+pass out  inet6 all keep state allow-opts tracker 1000004766 label "let out anything IPv6 from firewall host itself"
+pass out  route-to ( em0 192.168.10.1 ) from 192.168.10.72 to !192.168.10.0/24 tracker 1000004861 keep state allow-opts label "let out anything from firewall host itself"
+pass out  route-to ( em2 192.168.210.20 ) from 192.168.210.1 to !192.168.210.0/24 tracker 1000004862 keep state allow-opts label "let out anything from firewall host itself"
+pass out  on $IPsec all tracker 1000005161 tracker 1000005162 keep state label "IPsec internal host to host"
+# make sure the user cannot lock himself out of the webConfigurator or SSH
+pass in  quick on em1 proto tcp from any to (em1) port { 443 80 22 } tracker 1000005171 keep state label "anti-lockout rule"
+
+# User-defined rules follow
+
+anchor "userrules/*"
+pass  in  quick  on $IPsec inet from any to any tracker 1402395219 keep state  label "USER_RULE"
+# array key "openvpn" does not exist for "" in array: {WAN LAN OPT1 IPsec } label "USER_RULE"
+pass  in  quick  on $WAN reply-to ( em0 192.168.10.1 ) inet from any to any tracker 1402088594 keep state  label "USER_RULE"
+pass  in  quick  on $LAN inet from 192.168.1.0/24 to any tracker 0100000101 keep state  label "USER_RULE: Default allow LAN to any rule"
+# at the break! label "USER_RULE: Default allow LAN IPv6 to any rule"
+pass  in  quick  on $LAN  proto tcp  from any to 127.0.0.1 port 8080 flags S/SA keep state  label "USER_RULE: NAT "
+pass  in  quick  on $OPT1 reply-to ( em2 192.168.210.20 )  proto tcp  from any to 192.168.1.100 port 53 flags S/SA keep state  label "USER_RULE: NAT "
+
+# VPN Rules
+pass out  on $WAN   proto udp from any to  any  port = 500 tracker 1000105331 keep state label "IPsec:  any  - outbound isakmp"
+pass in  on $WAN   proto udp from  any  to any port = 500 tracker 1000105332 keep state label "IPsec:  any  - inbound isakmp"
+pass out  on $WAN   proto udp from any to  any  port = 4500 tracker 1000105333 keep state label "IPsec:  any  - outbound nat-t"
+pass in  on $WAN   proto udp from  any  to any port = 4500 tracker 1000105334 keep state label "IPsec:  any  - inbound nat-t"
+pass out  on $WAN   proto esp from any to  any  tracker 1000105335 keep state label "IPsec:  any  - outbound esp proto"
+pass in  on $WAN   proto esp from  any  to any tracker 1000105336 keep state label "IPsec:  any  - inbound esp proto"
+
+anchor "tftp-proxy/*"
