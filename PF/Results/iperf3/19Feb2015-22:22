@@ -1,0 +1,21 @@
+root@lynx1:/tank/users/gnn/github/netperf/IPFW/Tests/iperf3-ipfw-nofilt # cpuset -l 1 iperf3 -c 172.16.1.3
+Connecting to host 172.16.1.3, port 5201
+[  4] local 172.16.0.1 port 13478 connected to 172.16.1.3 port 5201
+[ ID] Interval           Transfer     Bandwidth
+[  4]   0.00-1.00   sec   961 MBytes  8.06 Gbits/sec                  
+[  4]   1.00-2.00   sec   973 MBytes  8.16 Gbits/sec                  
+[  4]   2.00-3.00   sec   972 MBytes  8.16 Gbits/sec                  
+[  4]   3.00-4.00   sec   972 MBytes  8.15 Gbits/sec                  
+[  4]   4.00-5.00   sec   972 MBytes  8.15 Gbits/sec                  
+[  4]   5.00-6.00   sec   972 MBytes  8.16 Gbits/sec                  
+[  4]   6.00-7.00   sec   973 MBytes  8.16 Gbits/sec                  
+[  4]   7.00-8.00   sec   972 MBytes  8.15 Gbits/sec                  
+[  4]   8.00-9.00   sec   972 MBytes  8.16 Gbits/sec                  
+[  4]   9.00-10.00  sec   972 MBytes  8.16 Gbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth
+[  4]   0.00-10.00  sec  9.48 GBytes  8.15 Gbits/sec                  sender
+[  4]   0.00-10.00  sec  9.48 GBytes  8.15 Gbits/sec                  receiver
+
+iperf Done.
+
