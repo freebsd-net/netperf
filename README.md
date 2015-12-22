@@ -6,6 +6,9 @@ far been run on [FreeBSD](http://www.freebsd.org) as well as
 [pfSense](http://www.pfsense.org) but that doesn't prevent them from
 being reused in other systems.
 
+The tests require the [Conductor](https://github.com/gvnn3/conductor)
+Python package.
+
 Directory | Contains
 ----------|----------
 VANILLA | Tests, configs and graphs for an unmodified FreeBSD system. (This is where all baselines should be derived.)
