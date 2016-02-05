@@ -1,0 +1,260 @@
+	None
+
+
+
+
+call graph profile:
+          The sum of self and descendents is the major sort
+          for this listing.
+
+          function entries:
+
+index     the index of the function in the call graph
+          listing, as an aid to locating it (see below).
+
+%time     the percentage of the total time of the program
+          accounted for by this function and its
+          descendents.
+
+self      the number of seconds spent in this function
+          itself.
+
+descendents
+          the number of seconds spent in the descendents of
+          this function on behalf of this function.
+
+called    the number of times this function is called (other
+          than recursive calls).
+
+self      the number of times this function calls itself
+          recursively.
+
+name      the name of the function, with an indication of
+          its membership in a cycle, if any.
+
+index     the index of the function in the call graph
+          listing, as an aid to locating it.
+
+
+
+          parent listings:
+
+self*     the number of seconds of this function's self time
+          which is due to calls from this parent.
+
+descendents*
+          the number of seconds of this function's
+          descendent time which is due to calls from this
+          parent.
+
+called**  the number of times this function is called by
+          this parent.  This is the numerator of the
+          fraction which divides up the function's time to
+          its parents.
+
+total*    the number of times this function was called by
+          all of its parents.  This is the denominator of
+          the propagation fraction.
+
+parents   the name of this parent, with an indication of the
+          parent's membership in a cycle, if any.
+
+index     the index of this parent in the call graph
+          listing, as an aid in locating it.
+
+
+
+          children listings:
+
+self*     the number of seconds of this child's self time
+          which is due to being called by this function.
+
+descendent*
+          the number of seconds of this child's descendent's
+          time which is due to being called by this
+          function.
+
+called**  the number of times this child is called by this
+          function.  This is the numerator of the
+          propagation fraction for this child.
+
+total*    the number of times this child is called by all
+          functions.  This is the denominator of the
+          propagation fraction.
+
+children  the name of this child, and an indication of its
+          membership in a cycle, if any.
+
+index     the index of this child in the call graph listing,
+          as an aid to locating it.
+
+
+
+          * these fields are omitted for parents (or
+          children) in the same cycle as the function.  If
+          the function (or child) is a member of a cycle,
+          the propagated times and propagation denominator
+          represent the self time and descendent time of the
+          cycle as a whole.
+
+          ** static-only parents and children are indicated
+          by a call count of 0.
+
+
+
+          cycle listings:
+          the cycle as a whole is listed with the same
+          fields as a function entry.  Below it are listed
+          the members of the cycle, and their contributions
+          to the time and call counts of the cycle.
+
+
+granularity: each sample hit covers 4 byte(s) for 2.08% of 48.00 seconds
+
+                                  called/total       parents 
+index  %time    self descendents  called+self    name    	index
+                                  called/total       children
+
+                                                     <spontaneous>
+[1]     62.5   30.00        0.00                 bcopy [1]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[2]      4.2    2.00        0.00                 bdwrite [2]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[3]      4.2    2.00        0.00                 m_prepend [3]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[4]      4.2    2.00        0.00                 mac_netinet_fragment [4]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[5]      2.1    1.00        0.00                 bcmp [5]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[6]      2.1    1.00        0.00                 bzero [6]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[7]      2.1    1.00        0.00                 ether_nh_input [7]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[8]      2.1    1.00        0.00                 ffs_write [8]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[9]      2.1    1.00        0.00                 ip_fillid [9]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[10]     2.1    1.00        0.00                 mac_mbuf_init [10]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[11]     2.1    1.00        0.00                 memcpy [11]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[12]     2.1    1.00        0.00                 netisr_dispatch_src [12]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[13]     2.1    1.00        0.00                 pmap_kextract [13]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[14]     2.1    1.00        0.00                 uma_zalloc_arg [14]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[15]     2.1    1.00        0.00                 vm_page_alloc [15]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[16]     2.1    1.00        0.00                 __mtx_unlock_flags [16]
+
+-----------------------------------------------
+
+
+
+
+
+flat profile:
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+
+granularity: each sample hit covers 4 byte(s) for 2.08% of 48.00 seconds
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 62.5      30.00    30.00        0  100.00%           bcopy [1]
+  4.2      32.00     2.00        0  100.00%           bdwrite [2]
+  4.2      34.00     2.00        0  100.00%           m_prepend [3]
+  4.2      36.00     2.00        0  100.00%           mac_netinet_fragment [4]
+  2.1      37.00     1.00        0  100.00%           __mtx_unlock_flags [16]
+  2.1      38.00     1.00        0  100.00%           bcmp [5]
+  2.1      39.00     1.00        0  100.00%           bzero [6]
+  2.1      40.00     1.00        0  100.00%           ether_nh_input [7]
+  2.1      41.00     1.00        0  100.00%           ffs_write [8]
+  2.1      42.00     1.00        0  100.00%           ip_fillid [9]
+  2.1      43.00     1.00        0  100.00%           mac_mbuf_init [10]
+  2.1      44.00     1.00        0  100.00%           memcpy [11]
+  2.1      45.00     1.00        0  100.00%           netisr_dispatch_src [12]
+  2.1      46.00     1.00        0  100.00%           pmap_kextract [13]
+  2.1      47.00     1.00        0  100.00%           uma_zalloc_arg [14]
+  2.1      48.00     1.00        0  100.00%           vm_page_alloc [15]
+
+Index by function name
+
+  [16] __mtx_unlock_flags    [8] ffs_write            [12] netisr_dispatch_src
+   [5] bcmp                  [9] ip_fillid            [13] pmap_kextract      
+   [1] bcopy                 [3] m_prepend            [14] uma_zalloc_arg     
+   [2] bdwrite              [10] mac_mbuf_init        [15] vm_page_alloc      
+   [6] bzero                 [4] mac_netinet_fragmen
+   [7] ether_nh_input       [11] memcpy             

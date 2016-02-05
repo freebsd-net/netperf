@@ -1,0 +1,611 @@
+	None
+
+
+
+
+call graph profile:
+          The sum of self and descendents is the major sort
+          for this listing.
+
+          function entries:
+
+index     the index of the function in the call graph
+          listing, as an aid to locating it (see below).
+
+%time     the percentage of the total time of the program
+          accounted for by this function and its
+          descendents.
+
+self      the number of seconds spent in this function
+          itself.
+
+descendents
+          the number of seconds spent in the descendents of
+          this function on behalf of this function.
+
+called    the number of times this function is called (other
+          than recursive calls).
+
+self      the number of times this function calls itself
+          recursively.
+
+name      the name of the function, with an indication of
+          its membership in a cycle, if any.
+
+index     the index of the function in the call graph
+          listing, as an aid to locating it.
+
+
+
+          parent listings:
+
+self*     the number of seconds of this function's self time
+          which is due to calls from this parent.
+
+descendents*
+          the number of seconds of this function's
+          descendent time which is due to calls from this
+          parent.
+
+called**  the number of times this function is called by
+          this parent.  This is the numerator of the
+          fraction which divides up the function's time to
+          its parents.
+
+total*    the number of times this function was called by
+          all of its parents.  This is the denominator of
+          the propagation fraction.
+
+parents   the name of this parent, with an indication of the
+          parent's membership in a cycle, if any.
+
+index     the index of this parent in the call graph
+          listing, as an aid in locating it.
+
+
+
+          children listings:
+
+self*     the number of seconds of this child's self time
+          which is due to being called by this function.
+
+descendent*
+          the number of seconds of this child's descendent's
+          time which is due to being called by this
+          function.
+
+called**  the number of times this child is called by this
+          function.  This is the numerator of the
+          propagation fraction for this child.
+
+total*    the number of times this child is called by all
+          functions.  This is the denominator of the
+          propagation fraction.
+
+children  the name of this child, and an indication of its
+          membership in a cycle, if any.
+
+index     the index of this child in the call graph listing,
+          as an aid to locating it.
+
+
+
+          * these fields are omitted for parents (or
+          children) in the same cycle as the function.  If
+          the function (or child) is a member of a cycle,
+          the propagated times and propagation denominator
+          represent the self time and descendent time of the
+          cycle as a whole.
+
+          ** static-only parents and children are indicated
+          by a call count of 0.
+
+
+
+          cycle listings:
+          the cycle as a whole is listed with the same
+          fields as a function entry.  Below it are listed
+          the members of the cycle, and their contributions
+          to the time and call counts of the cycle.
+
+
+granularity: each sample hit covers 4 byte(s) for 0.61% of 165.00 seconds
+
+                                  called/total       parents 
+index  %time    self descendents  called+self    name    	index
+                                  called/total       children
+
+                                                     <spontaneous>
+[1]     27.0    1.00       43.48                 ether_input [1]
+                9.00       34.48       9/9           netisr_dispatch_src <cycle 1> [3]
+
+-----------------------------------------------
+
+[2]     26.4    9.00       34.48       9+37      <cycle 1 as a whole>	[2]
+                6.00       34.48      28             netisr_dispatch_src <cycle 1> [3]
+                3.00        0.00       9             ether_nh_input <cycle 1> [33]
+                0.00        0.00       9             ether_demux <cycle 1> [65]
+
+-----------------------------------------------
+
+                                      19             ether_demux <cycle 1> [65]
+                9.00       34.48       9/9           ether_input [1]
+[3]     24.5    6.00       34.48      28         netisr_dispatch_src <cycle 1> [3]
+                0.00       34.48      19/19          ip_input [5]
+                                       9             ether_nh_input <cycle 1> [33]
+
+-----------------------------------------------
+
+                1.60       14.57      10/25          esp_output_cb [17]
+                2.40       21.86      15/25          ip_forward [6]
+[4]     24.5    4.00       36.43      25         ip_output [4]
+                4.00       18.66      10/10          ip_fragment [11]
+                0.00       13.77      15/15          ip_ipsec_output [19]
+
+-----------------------------------------------
+
+                0.00       34.48      19/19          netisr_dispatch_src <cycle 1> [3]
+[5]     20.9    0.00       34.48      19         ip_input [5]
+                1.00       32.01      18/18          ip_forward [6]
+                0.00        1.47       1/1           esp4_input [40]
+
+-----------------------------------------------
+
+                1.00       32.01      18/18          ip_input [5]
+[6]     20.0    1.00       32.01      18         ip_forward [6]
+                2.40       21.86      15/25          ip_output [4]
+                0.00        7.75       3/3           m_copydata [23]
+
+-----------------------------------------------
+
+                5.17        0.00       2/12          m_copyback [30]
+                7.75        0.00       3/12          m_copydata [23]
+               18.08        0.00       7/12          uiomove_fromphys [14]
+[7]     18.8   31.00        0.00      12         bcopy [7]
+
+-----------------------------------------------
+
+                1.47        0.00       1/19          ipsec_common_input [41]
+               13.26        0.00       9/19          m_pkthdr_init [18]
+               13.26        0.00       9/19          mb_ctor_mbuf [10]
+[8]     17.0   28.00        0.00      19         bzero [8]
+
+-----------------------------------------------
+
+                0.23        5.37       3/13          m_prepend [25]
+                0.77       17.89      10/13          ip_fragment [11]
+[9]     14.7    1.00       23.26      13         uma_zalloc_arg [9]
+                0.00       23.26      16/16          mb_ctor_mbuf [10]
+
+-----------------------------------------------
+
+                0.00       23.26      16/16          uma_zalloc_arg [9]
+[10]    14.1    0.00       23.26      16         mb_ctor_mbuf [10]
+               13.26        0.00       9/19          bzero [8]
+               10.00        0.00       7/7           mac_mbuf_init [21]
+
+-----------------------------------------------
+
+                4.00       18.66      10/10          ip_output [4]
+[11]    13.7    4.00       18.66      10         ip_fragment [11]
+                0.77       17.89      10/13          uma_zalloc_arg [9]
+
+-----------------------------------------------
+
+                0.00       19.08       7/7           vn_write [15]
+[12]    11.6    0.00       19.08       7         VOP_WRITE_APV [12]
+                0.00       19.08       7/7           ffs_write [13]
+
+-----------------------------------------------
+
+                0.00       19.08       7/7           VOP_WRITE_APV [12]
+[13]    11.6    0.00       19.08       7         ffs_write [13]
+                1.00       18.08       7/7           uiomove_fromphys [14]
+
+-----------------------------------------------
+
+                1.00       18.08       7/7           ffs_write [13]
+[14]    11.6    1.00       18.08       7         uiomove_fromphys [14]
+               18.08        0.00       7/12          bcopy [7]
+
+-----------------------------------------------
+
+                0.00       19.08       7/7           vn_io_fault [16]
+[15]    11.6    0.00       19.08       7         vn_write [15]
+                0.00       19.08       7/7           VOP_WRITE_APV [12]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[16]    11.6    0.00       19.08                 vn_io_fault [16]
+                0.00       19.08       7/7           vn_write [15]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[17]     9.8    0.00       16.17                 esp_output_cb [17]
+                1.60       14.57      10/25          ip_output [4]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[18]     8.6    1.00       13.26                 m_pkthdr_init [18]
+               13.26        0.00       9/19          bzero [8]
+
+-----------------------------------------------
+
+                0.00       13.77      15/15          ip_output [4]
+[19]     8.3    0.00       13.77      15         ip_ipsec_output [19]
+                0.00       13.77      15/15          ipsec4_process_packet [20]
+
+-----------------------------------------------
+
+                0.00       13.77      15/15          ip_ipsec_output [19]
+[20]     8.3    0.00       13.77      15         ipsec4_process_packet [20]
+                0.00        7.60       3/3           ipsec_encap [24]
+                1.00        5.17      12/12          esp_output [28]
+
+-----------------------------------------------
+
+               10.00        0.00       7/7           mb_ctor_mbuf [10]
+[21]     6.1   10.00        0.00       7         mac_mbuf_init [21]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[22]     5.5    9.00        0.00                 atomic_add_int [22]
+
+-----------------------------------------------
+
+                0.00        7.75       3/3           ip_forward [6]
+[23]     4.7    0.00        7.75       3         m_copydata [23]
+                7.75        0.00       3/12          bcopy [7]
+
+-----------------------------------------------
+
+                0.00        7.60       3/3           ipsec4_process_packet [20]
+[24]     4.6    0.00        7.60       3         ipsec_encap [24]
+                2.00        5.60       3/3           m_prepend [25]
+
+-----------------------------------------------
+
+                2.00        5.60       3/3           ipsec_encap [24]
+[25]     4.6    2.00        5.60       3         m_prepend [25]
+                0.23        5.37       3/13          uma_zalloc_arg [9]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[26]     4.2    7.00        0.00                 m_copym [26]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[27]     4.2    7.00        0.00                 m_dup_pkthdr [27]
+
+-----------------------------------------------
+
+                1.00        5.17      12/12          ipsec4_process_packet [20]
+[28]     3.7    1.00        5.17      12         esp_output [28]
+                0.00        5.17       2/2           m_copyback [30]
+                0.00        0.00      10/10          crypto_dispatch [64]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[29]     3.6    6.00        0.00                 __mtx_unlock_flags [29]
+
+-----------------------------------------------
+
+                0.00        5.17       2/2           esp_output [28]
+[30]     3.1    0.00        5.17       2         m_copyback [30]
+                5.17        0.00       2/12          bcopy [7]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[31]     3.0    5.00        0.00                 ip_fillid [31]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[32]     2.4    4.00        0.00                 bdwrite [32]
+
+-----------------------------------------------
+
+                                       9             netisr_dispatch_src <cycle 1> [3]
+[33]     1.8    3.00        0.00       9         ether_nh_input <cycle 1> [33]
+                                       9             ether_demux <cycle 1> [65]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[34]     1.8    3.00        0.00                 memcpy [34]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[35]     1.2    2.00        0.00                 bcmp [35]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[36]     1.2    2.00        0.00                 mac_netinet_fragment [36]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[37]     1.2    2.00        0.00                 random_harvest_queue [37]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[38]     1.2    2.00        0.00                 spinlock_enter [38]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[39]     1.2    2.00        0.00                 uma_zfree_arg [39]
+
+-----------------------------------------------
+
+                0.00        1.47       1/1           ip_input [5]
+[40]     0.9    0.00        1.47       1         esp4_input [40]
+                0.00        1.47       1/1           ipsec_common_input [41]
+
+-----------------------------------------------
+
+                0.00        1.47       1/1           esp4_input [40]
+[41]     0.9    0.00        1.47       1         ipsec_common_input [41]
+                1.47        0.00       1/19          bzero [8]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[42]     0.6    1.00        0.00                 atomic_cmpset_long [42]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[43]     0.6    1.00        0.00                 atomic_subtract_barr_int [43]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[44]     0.6    1.00        0.00                 callout_process [44]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[45]     0.6    1.00        0.00                 critical_enter [45]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[46]     0.6    1.00        0.00                 getblk [46]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[47]     0.6    1.00        0.00                 in_broadcast [47]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[48]     0.6    1.00        0.00                 ipsec_getpolicybyaddr [48]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[49]     0.6    1.00        0.00                 keg_alloc_slab [49]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[50]     0.6    1.00        0.00                 m_adj [50]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[51]     0.6    1.00        0.00                 m_makespace [51]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[52]     0.6    1.00        0.00                 mac_ifnet_create_mbuf [52]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[53]     0.6    1.00        0.00                 mb_free_ext [53]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[54]     0.6    1.00        0.00                 pagecopy [54]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[55]     0.6    1.00        0.00                 spinlock_exit [55]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[56]     0.6    1.00        0.00                 tcp_lro_rx [56]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[57]     0.6    1.00        0.00                 vm_page_alloc [57]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[58]     0.6    1.00        0.00                 vm_phys_alloc_domain_pages [58]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[59]     0.6    1.00        0.00                 __mtx_lock_spin_flags [59]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[60]     0.6    1.00        0.00                 __mtx_unlock_spin_flags [60]
+
+-----------------------------------------------
+
+                                                     <spontaneous>
+[61]     0.6    1.00        0.00                 _mtx_trylock_flags_ [61]
+
+-----------------------------------------------
+
+                0.00        0.00      21/21          ithread_loop [63]
+[62]     0.0    0.00        0.00      21         intr_event_execute_handlers [62]
+
+-----------------------------------------------
+
+                0.00        0.00      21/21          fork_exit [10088]
+[63]     0.0    0.00        0.00      21         ithread_loop [63]
+                0.00        0.00      21/21          intr_event_execute_handlers [62]
+
+-----------------------------------------------
+
+                0.00        0.00      10/10          esp_output [28]
+[64]     0.0    0.00        0.00      10         crypto_dispatch [64]
+
+-----------------------------------------------
+
+                                       9             ether_nh_input <cycle 1> [33]
+[65]     0.0    0.00        0.00       9         ether_demux <cycle 1> [65]
+                                      19             netisr_dispatch_src <cycle 1> [3]
+
+-----------------------------------------------
+
+
+
+
+
+flat profile:
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+
+granularity: each sample hit covers 4 byte(s) for 0.61% of 165.00 seconds
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 18.8      31.00    31.00       12  2583.33  2583.33  bcopy [7]
+ 17.0      59.00    28.00       19  1473.68  1473.68  bzero [8]
+  6.1      69.00    10.00        7  1428.57  1428.57  mac_mbuf_init [21]
+  5.5      78.00     9.00        0  100.00%           atomic_add_int [22]
+  4.2      85.00     7.00        0  100.00%           m_copym [26]
+  4.2      92.00     7.00        0  100.00%           m_dup_pkthdr [27]
+  3.6      98.00     6.00       28   214.29  1445.77  netisr_dispatch_src <cycle 1> [3]
+  3.6     104.00     6.00        0  100.00%           __mtx_unlock_flags [29]
+  3.0     109.00     5.00        0  100.00%           ip_fillid [31]
+  2.4     113.00     4.00       25   160.00  1617.19  ip_output [4]
+  2.4     117.00     4.00       10   400.00  2266.40  ip_fragment [11]
+  2.4     121.00     4.00        0  100.00%           bdwrite [32]
+  1.8     124.00     3.00        9   333.33   333.33  ether_nh_input <cycle 1> [33]
+  1.8     127.00     3.00        0  100.00%           memcpy [34]
+  1.2     129.00     2.00        3   666.67  2533.06  m_prepend [25]
+  1.2     131.00     2.00        0  100.00%           bcmp [35]
+  1.2     133.00     2.00        0  100.00%           mac_netinet_fragment [36]
+  1.2     135.00     2.00        0  100.00%           random_harvest_queue [37]
+  1.2     137.00     2.00        0  100.00%           spinlock_enter [38]
+  1.2     139.00     2.00        0  100.00%           uma_zfree_arg [39]
+  0.6     140.00     1.00       18    55.56  1833.77  ip_forward [6]
+  0.6     141.00     1.00       13    76.92  1866.40  uma_zalloc_arg [9]
+  0.6     142.00     1.00       12    83.33   513.89  esp_output [28]
+  0.6     143.00     1.00        7   142.86  2726.19  uiomove_fromphys [14]
+  0.6     144.00     1.00        0  100.00%           __mtx_lock_spin_flags [59]
+  0.6     145.00     1.00        0  100.00%           __mtx_unlock_spin_flags [60]
+  0.6     146.00     1.00        0  100.00%           _mtx_trylock_flags_ [61]
+  0.6     147.00     1.00        0  100.00%           atomic_cmpset_long [42]
+  0.6     148.00     1.00        0  100.00%           atomic_subtract_barr_int [43]
+  0.6     149.00     1.00        0  100.00%           callout_process [44]
+  0.6     150.00     1.00        0  100.00%           critical_enter [45]
+  0.6     151.00     1.00        0    2.25%           ether_input [1]
+  0.6     152.00     1.00        0  100.00%           getblk [46]
+  0.6     153.00     1.00        0  100.00%           in_broadcast [47]
+  0.6     154.00     1.00        0  100.00%           ipsec_getpolicybyaddr [48]
+  0.6     155.00     1.00        0  100.00%           keg_alloc_slab [49]
+  0.6     156.00     1.00        0  100.00%           m_adj [50]
+  0.6     157.00     1.00        0  100.00%           m_makespace [51]
+  0.6     158.00     1.00        0    7.01%           m_pkthdr_init [18]
+  0.6     159.00     1.00        0  100.00%           mac_ifnet_create_mbuf [52]
+  0.6     160.00     1.00        0  100.00%           mb_free_ext [53]
+  0.6     161.00     1.00        0  100.00%           pagecopy [54]
+  0.6     162.00     1.00        0  100.00%           spinlock_exit [55]
+  0.6     163.00     1.00        0  100.00%           tcp_lro_rx [56]
+  0.6     164.00     1.00        0  100.00%           vm_page_alloc [57]
+  0.6     165.00     1.00        0  100.00%           vm_phys_alloc_domain_pages [58]
+  0.0     165.00     0.00       21     0.00     0.00  intr_event_execute_handlers [62]
+  0.0     165.00     0.00       21     0.00     0.00  ithread_loop [63]
+  0.0     165.00     0.00       19     0.00  1814.82  ip_input [5]
+  0.0     165.00     0.00       16     0.00  1453.95  mb_ctor_mbuf [10]
+  0.0     165.00     0.00       15     0.00   917.72  ip_ipsec_output [19]
+  0.0     165.00     0.00       15     0.00   917.72  ipsec4_process_packet [20]
+  0.0     165.00     0.00       10     0.00     0.00  crypto_dispatch [64]
+  0.0     165.00     0.00        9     0.00     0.00  ether_demux <cycle 1> [65]
+  0.0     165.00     0.00        7     0.00  2726.19  VOP_WRITE_APV [12]
+  0.0     165.00     0.00        7     0.00  2726.19  ffs_write [13]
+  0.0     165.00     0.00        7     0.00  2726.19  vn_write [15]
+  0.0     165.00     0.00        3     0.00  2533.06  ipsec_encap [24]
+  0.0     165.00     0.00        3     0.00  2583.33  m_copydata [23]
+  0.0     165.00     0.00        2     0.00  2583.33  m_copyback [30]
+  0.0     165.00     0.00        1     0.00  1473.68  esp4_input [40]
+  0.0     165.00     0.00        1     0.00  1473.68  ipsec_common_input [41]
+  0.0     165.00     0.00        0    0.00%           esp_output_cb [17]
+  0.0     165.00     0.00        0    0.00%           vn_io_fault [16]
+
+Index by function name
+
+  [12] VOP_WRITE_APV        [46] getblk               [18] m_pkthdr_init      
+  [59] __mtx_lock_spin_fla  [47] in_broadcast         [25] m_prepend          
+  [29] __mtx_unlock_flags   [62] intr_event_execute_  [52] mac_ifnet_create_mb
+  [60] __mtx_unlock_spin_f  [31] ip_fillid            [21] mac_mbuf_init      
+  [61] _mtx_trylock_flags_   [6] ip_forward           [36] mac_netinet_fragmen
+  [22] atomic_add_int       [11] ip_fragment          [10] mb_ctor_mbuf       
+  [42] atomic_cmpset_long    [5] ip_input             [53] mb_free_ext        
+  [43] atomic_subtract_bar  [19] ip_ipsec_output      [34] memcpy             
+  [35] bcmp                  [4] ip_output             [3] netisr_dispatch_src
+   [7] bcopy                [20] ipsec4_process_pack  [54] pagecopy           
+  [32] bdwrite              [41] ipsec_common_input   [37] random_harvest_queu
+   [8] bzero                [24] ipsec_encap          [38] spinlock_enter     
+  [44] callout_process      [48] ipsec_getpolicybyad  [55] spinlock_exit      
+  [45] critical_enter       [63] ithread_loop         [56] tcp_lro_rx         
+  [64] crypto_dispatch      [49] keg_alloc_slab       [14] uiomove_fromphys   
+  [40] esp4_input           [50] m_adj                 [9] uma_zalloc_arg     
+  [28] esp_output           [30] m_copyback           [39] uma_zfree_arg      
+  [65] ether_demux          [23] m_copydata           [57] vm_page_alloc      
+   [1] ether_input          [26] m_copym              [58] vm_phys_alloc_domai
+  [33] ether_nh_input       [27] m_dup_pkthdr         [15] vn_write           
+  [13] ffs_write            [51] m_makespace           [2] <cycle 1>          
